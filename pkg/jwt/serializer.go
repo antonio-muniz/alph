@@ -3,34 +3,40 @@ package jwt
 import (
 	"encoding/base64"
 	"encoding/json"
-	"strings"
+	"fmt"
 
 	"github.com/antonio-muniz/alph/pkg/models/token"
 	"github.com/pkg/errors"
 )
 
 func Serialize(token token.Token) (string, error) {
-	headerJSON, err := json.Marshal(map[string]interface{}{
-		"alg": token.Header.SignatureAlgorithm,
-		"typ": token.Header.TokenType,
-	})
+	serializedHeader, err := serializeHeader(token.Header)
+	if err != nil {
+		return "", err
+	}
+	serializedPayload, err := serializePayload(token.Payload)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s.%s", serializedHeader, serializedPayload), nil
+}
+
+func serializeHeader(header token.Header) (string, error) {
+	headerJSON, err := json.Marshal(header)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to serialize token header")
 	}
+	return encodeBase64URL(headerJSON), nil
+}
 
-	payloadJSON, err := json.Marshal(map[string]interface{}{
-		"iss": token.Payload.Issuer,
-		"aud": token.Payload.Audience,
-		"sub": token.Payload.Subject,
-		"iat": token.Payload.IssuedAt,
-		"exp": token.Payload.ExpirationTime,
-	})
+func serializePayload(payload token.Payload) (string, error) {
+	payloadJSON, err := json.Marshal(payload)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to serialize token payload")
 	}
+	return encodeBase64URL(payloadJSON), nil
+}
 
-	headerComponent := base64.RawURLEncoding.EncodeToString(headerJSON)
-	payloadComponent := base64.RawURLEncoding.EncodeToString(payloadJSON)
-
-	return strings.Join([]string{headerComponent, payloadComponent}, "."), nil
+func encodeBase64URL(bytes []byte) string {
+	return base64.RawURLEncoding.EncodeToString(bytes)
 }
