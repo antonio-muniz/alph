@@ -7,28 +7,52 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
-	"fmt"
 
 	"github.com/pkg/errors"
 )
 
-func Encrypt(message string, encryptionAlgorithm string, encryptionKey string) (string, error) {
-	if encryptionAlgorithm != "RSA" {
-		return "", fmt.Errorf("unsupported encryption algorithm '%s'", encryptionAlgorithm)
+func Encrypt(message string, encryptionKey string) (string, error) {
+	publicKey, err := parsePublicKey(encryptionKey)
+	if err != nil {
+		return "", err
 	}
-	pemBlock, _ := pem.Decode([]byte(encryptionKey))
+	encryptedMessage, err := encryptMessage(message, publicKey)
+	if err != nil {
+		return "", err
+	}
+	return encryptedMessage, nil
+}
+
+func Decrypt(encryptedMessage string, decryptionKey string) (string, error) {
+	privateKey, err := parsePrivateKey(decryptionKey)
+	if err != nil {
+		return "", err
+	}
+	decryptedMessage, err := decryptMessage(encryptedMessage, privateKey)
+	if err != nil {
+		return "", err
+	}
+	return decryptedMessage, nil
+}
+
+func parsePublicKey(key string) (*rsa.PublicKey, error) {
+	pemBlock, _ := pem.Decode([]byte(key))
 	publicKey, err := x509.ParsePKIXPublicKey(pemBlock.Bytes)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to parse encryption key")
+		return nil, errors.Wrap(err, "failed to parse encryption key")
 	}
 	rsaPublicKey, isRSAPublicKey := publicKey.(*rsa.PublicKey)
 	if !isRSAPublicKey {
-		return "", errors.New("encryption key is not a RSA public key")
+		return nil, errors.New("encryption key is not a RSA public key")
 	}
+	return rsaPublicKey, nil
+}
+
+func encryptMessage(message string, publicKey *rsa.PublicKey) (string, error) {
 	encryptedMessageBytes, err := rsa.EncryptOAEP(
 		sha256.New(),
 		rand.Reader,
-		rsaPublicKey,
+		publicKey,
 		[]byte(message),
 		nil,
 	)
@@ -39,19 +63,20 @@ func Encrypt(message string, encryptionAlgorithm string, encryptionKey string) (
 	return encryptedMessage, nil
 }
 
-func Decrypt(encryptedMessage string, encryptionAlgorithm string, decryptionKey string) (string, error) {
-	if encryptionAlgorithm != "RSA" {
-		return "", fmt.Errorf("unsupported encryption algorithm '%s'", encryptionAlgorithm)
-	}
-	pemBlock, _ := pem.Decode([]byte(decryptionKey))
+func parsePrivateKey(key string) (*rsa.PrivateKey, error) {
+	pemBlock, _ := pem.Decode([]byte(key))
 	privateKey, err := x509.ParsePKCS8PrivateKey(pemBlock.Bytes)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to parse decryption key")
+		return nil, errors.Wrap(err, "failed to parse decryption key")
 	}
 	rsaPrivateKey, isRSAPrivateKey := privateKey.(*rsa.PrivateKey)
 	if !isRSAPrivateKey {
-		return "", errors.New("decryption key is not a RSA private key")
+		return nil, errors.New("decryption key is not a RSA private key")
 	}
+	return rsaPrivateKey, nil
+}
+
+func decryptMessage(encryptedMessage string, privateKey *rsa.PrivateKey) (string, error) {
 	encryptedMessageBytes, err := base64.RawURLEncoding.DecodeString(encryptedMessage)
 	if err != nil {
 		return "", errors.Wrap(err, "encrypted message is not base64 encoded")
@@ -59,7 +84,7 @@ func Decrypt(encryptedMessage string, encryptionAlgorithm string, decryptionKey 
 	decryptedMessageBytes, err := rsa.DecryptOAEP(
 		sha256.New(),
 		rand.Reader,
-		rsaPrivateKey,
+		privateKey,
 		encryptedMessageBytes,
 		nil,
 	)
