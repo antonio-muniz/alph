@@ -21,7 +21,7 @@ func TestSerialize(t *testing.T) {
 		expectedPayload map[string]interface{}
 	}{
 		{
-			description: "Serializes_a_token_to_string",
+			description: "serializes_a_token_to_string",
 			token: token.Token{
 				Header: token.Header{
 					SignatureAlgorithm: "HS256",
