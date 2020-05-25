@@ -1,12 +1,6 @@
 package jwt_test
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/sha256"
-	"crypto/x509"
-	"encoding/base64"
-	"encoding/pem"
 	"testing"
 
 	"github.com/antonio-muniz/alph/pkg/jwt"
@@ -14,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestEncrypt(t *testing.T) {
+func TestEncryptDecrypt(t *testing.T) {
 	scenarios := []struct {
 		description           string
 		message               string
@@ -23,7 +17,7 @@ func TestEncrypt(t *testing.T) {
 		expectedDecryptionKey string
 	}{
 		{
-			description:           "encrypts_a_message_using_RSA_algorithm",
+			description:           "encrypts_then_decrypts_a_message_using_RSA_algorithm",
 			message:               "shhh-this-is-secret",
 			encryptionAlgorithm:   "RSA",
 			encryptionKey:         encryption.PublicKey(),
@@ -40,24 +34,12 @@ func TestEncrypt(t *testing.T) {
 			)
 			require.NoError(t, err)
 
-			pemBlock, _ := pem.Decode([]byte(scenario.expectedDecryptionKey))
-			privateKey, err := x509.ParsePKCS8PrivateKey(pemBlock.Bytes)
-			require.NoError(t, err)
-			rsaPrivateKey, isRSAPrivateKey := privateKey.(*rsa.PrivateKey)
-			if !isRSAPrivateKey {
-				t.Fatal("expected decryption key is not a RSA private key")
-			}
-			encryptedMessageBytes, err := base64.RawURLEncoding.DecodeString(encryptedMessage)
-			require.NoError(t, err)
-			decryptedMessageBytes, err := rsa.DecryptOAEP(
-				sha256.New(),
-				rand.Reader,
-				rsaPrivateKey,
-				encryptedMessageBytes,
-				nil,
+			decryptedMessage, err := jwt.Decrypt(
+				encryptedMessage,
+				scenario.encryptionAlgorithm,
+				scenario.expectedDecryptionKey,
 			)
 			require.NoError(t, err)
-			decryptedMessage := string(decryptedMessageBytes)
 			require.Equal(t, scenario.message, decryptedMessage)
 		})
 	}
