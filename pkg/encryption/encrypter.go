@@ -1,4 +1,4 @@
-package jwt
+package encryption
 
 import (
 	"crypto/rand"

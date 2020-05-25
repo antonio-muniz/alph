@@ -26,7 +26,7 @@ func serializeHeader(header token.Header) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "failed to serialize token header")
 	}
-	encodedHeader := encodeBase64URL(headerJSON)
+	encodedHeader := base64.RawURLEncoding.EncodeToString(headerJSON)
 	return encodedHeader, nil
 }
 
@@ -35,10 +35,6 @@ func serializePayload(payload token.Payload) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "failed to serialize token payload")
 	}
-	encodedPayload := encodeBase64URL(payloadJSON)
+	encodedPayload := base64.RawURLEncoding.EncodeToString(payloadJSON)
 	return encodedPayload, nil
-}
-
-func encodeBase64URL(bytes []byte) string {
-	return base64.RawURLEncoding.EncodeToString(bytes)
 }
