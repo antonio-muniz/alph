@@ -28,11 +28,15 @@ func TestSerialize(t *testing.T) {
 					TokenType:          "JWT",
 				},
 				Payload: token.Payload{
-					Issuer:         "alph",
-					Audience:       "example.org",
-					Subject:        "someone@example.org",
-					IssuedAt:       time.Date(2020, time.May, 24, 20, 05, 37, 165098132, time.UTC),
-					ExpirationTime: time.Date(2020, time.May, 24, 20, 35, 37, 165098132, time.UTC),
+					Issuer:   "alph",
+					Audience: "example.org",
+					Subject:  "someone@example.org",
+					IssuedAt: token.Timestamp(
+						time.Date(2020, time.May, 24, 20, 05, 37, 165098132, time.UTC),
+					),
+					ExpirationTime: token.Timestamp(
+						time.Date(2020, time.May, 24, 20, 35, 37, 165098132, time.UTC),
+					),
 				},
 			},
 			expectedHeader: map[string]interface{}{
@@ -43,8 +47,8 @@ func TestSerialize(t *testing.T) {
 				"iss": "alph",
 				"aud": "example.org",
 				"sub": "someone@example.org",
-				"iat": "2020-05-24T20:05:37.165098132Z",
-				"exp": "2020-05-24T20:35:37.165098132Z",
+				"iat": float64(1590350737),
+				"exp": float64(1590352537),
 			},
 		},
 	}
