@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Encrypt(message string, encryptionKey string) (string, error) {
+func RSAEncrypt(message string, encryptionKey string) (string, error) {
 	publicKey, err := parsePublicKey(encryptionKey)
 	if err != nil {
 		return "", err
@@ -23,7 +23,7 @@ func Encrypt(message string, encryptionKey string) (string, error) {
 	return encryptedMessage, nil
 }
 
-func Decrypt(encryptedMessage string, decryptionKey string) (string, error) {
+func RSADecrypt(encryptedMessage string, decryptionKey string) (string, error) {
 	privateKey, err := parsePrivateKey(decryptionKey)
 	if err != nil {
 		return "", err

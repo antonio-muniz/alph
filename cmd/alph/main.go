@@ -79,7 +79,7 @@ func main() {
 				response.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-			encryptedAESKey, err := encryption.Encrypt(
+			encryptedAESKey, err := encryption.RSAEncrypt(
 				"dont-share-this-key-with-anybody",
 				fixtures.PublicKey(),
 			)

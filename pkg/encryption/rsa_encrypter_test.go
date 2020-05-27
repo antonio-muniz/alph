@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestEncryptDecrypt(t *testing.T) {
+func TestRSAEncryptDecrypt(t *testing.T) {
 	scenarios := []struct {
 		description           string
 		message               string
@@ -25,9 +25,9 @@ func TestEncryptDecrypt(t *testing.T) {
 
 	for _, scenario := range scenarios {
 		t.Run(scenario.description, func(t *testing.T) {
-			encryptedMessage, err := encryption.Encrypt(scenario.message, scenario.encryptionKey)
+			encryptedMessage, err := encryption.RSAEncrypt(scenario.message, scenario.encryptionKey)
 			require.NoError(t, err)
-			decryptedMessage, err := encryption.Decrypt(encryptedMessage, scenario.expectedDecryptionKey)
+			decryptedMessage, err := encryption.RSADecrypt(encryptedMessage, scenario.expectedDecryptionKey)
 			require.NoError(t, err)
 			require.Equal(t, scenario.message, decryptedMessage)
 		})
