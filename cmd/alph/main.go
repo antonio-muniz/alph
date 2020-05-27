@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/antonio-muniz/alph/pkg/encryption"
@@ -69,17 +70,26 @@ func main() {
 				response.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-			fmt.Println("Signed token size: ", len(signedToken))
-			accessToken, err := encryption.Encrypt(
-				signedToken[0:189], // RSA 2048 bit keys can only encrypt up to 190 bytes
-				fixtures.PublicKey(),
+			encryptedToken, err := encryption.AESEncrypt(
+				signedToken,
+				"dont-share-this-key-with-anybody",
 			)
-			fmt.Println("Access token size: ", len(accessToken))
 			if err != nil {
 				fmt.Println(err.Error())
 				response.WriteHeader(http.StatusInternalServerError)
 				return
 			}
+			encryptedAESKey, err := encryption.Encrypt(
+				"dont-share-this-key-with-anybody",
+				fixtures.PublicKey(),
+			)
+			if err != nil {
+				fmt.Println(err.Error())
+				response.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			accessToken := strings.Join([]string{encryptedToken, encryptedAESKey}, ".")
+
 			authResponse := AuthResponse{AccessToken: accessToken}
 			responseBody, err := json.Marshal(authResponse)
 			if err != nil {
