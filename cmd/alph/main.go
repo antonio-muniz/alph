@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strings"
 	"time"
 
-	"github.com/antonio-muniz/alph/pkg/encryption"
 	"github.com/antonio-muniz/alph/pkg/jwt"
 
 	"github.com/antonio-muniz/alph/pkg/models/token"
@@ -70,25 +68,12 @@ func main() {
 				response.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-			encryptedToken, err := encryption.AESEncrypt(
-				signedToken,
-				"dont-share-this-key-with-anybody",
-			)
+			accessToken, err := jwt.Encrypt(signedToken, fixtures.PublicKey())
 			if err != nil {
 				fmt.Println(err.Error())
 				response.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-			encryptedAESKey, err := encryption.RSAEncrypt(
-				"dont-share-this-key-with-anybody",
-				fixtures.PublicKey(),
-			)
-			if err != nil {
-				fmt.Println(err.Error())
-				response.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-			accessToken := strings.Join([]string{encryptedToken, encryptedAESKey}, ".")
 
 			authResponse := AuthResponse{AccessToken: accessToken}
 			responseBody, err := json.Marshal(authResponse)
