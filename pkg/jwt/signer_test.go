@@ -1,7 +1,6 @@
 package jwt_test
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -34,8 +33,6 @@ func TestSign(t *testing.T) {
 				scenario.signingKey,
 			)
 			require.NoError(t, err)
-
-			fmt.Println(signedToken)
 
 			signedTokenComponents := strings.SplitN(signedToken, ".", 3)
 			require.Len(t, signedTokenComponents, 3)
