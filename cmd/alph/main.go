@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/antonio-muniz/alph/pkg/jwt"
+	"github.com/antonio-muniz/alph/pkg/password"
 
 	"github.com/antonio-muniz/alph/pkg/models/token"
 	fixtures "github.com/antonio-muniz/alph/test/fixtures/encryption"
@@ -23,6 +24,12 @@ type AuthResponse struct {
 }
 
 func main() {
+	correctIdentity := "someone@example.org"
+	correctPasswordHash, err := password.Hash("123456")
+	if err != nil {
+		panic(err)
+	}
+
 	http.HandleFunc("/api/auth", func(response http.ResponseWriter, request *http.Request) {
 		switch request.Method {
 		case http.MethodPost:
@@ -38,7 +45,13 @@ func main() {
 				response.WriteHeader(http.StatusBadRequest)
 				return
 			}
-			if authRequest.Identity != "someone@example.org" || authRequest.Password != "123456" {
+			passwordCorrect, err := password.Validate(authRequest.Password, correctPasswordHash)
+			if err != nil {
+				fmt.Println(err.Error())
+				response.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			if authRequest.Identity != correctIdentity || !passwordCorrect {
 				response.WriteHeader(http.StatusForbidden)
 				return
 			}
