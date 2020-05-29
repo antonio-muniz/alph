@@ -1,6 +1,6 @@
 package request
 
 type Authenticate struct {
-	Identity string `json:"identity"`
-	Password string `json:"password"`
+	SubjectID string `json:"subject_id"`
+	Password  string `json:"password"`
 }

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/config"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/database/memory"
 	"github.com/antonio-muniz/alph/pkg/jwt"
 	"github.com/antonio-muniz/alph/pkg/models/request"
 	"github.com/antonio-muniz/alph/pkg/models/response"
@@ -14,25 +15,21 @@ import (
 	"github.com/sarulabs/di"
 )
 
-const (
-	correctIdentity = "someone@example.org"
-	correctPassword = "123456"
-)
-
 var (
 	ErrIncorrectCredentials = errors.New("Incorrect credentials")
 )
 
 func Authenticate(ctx context.Context, components di.Container, request request.Authenticate) (response.Authenticate, error) {
-	correctPasswordHash, err := password.Hash("123456")
+	database := components.Get("database").(memory.Database)
+	subject, err := database.GetSubject(ctx, request.SubjectID)
 	if err != nil {
-		return response.Authenticate{}, errors.Wrap(err, "hashing correct password")
+		return response.Authenticate{}, ErrIncorrectCredentials
 	}
-	passwordCorrect, err := password.Validate(request.Password, correctPasswordHash)
+	passwordCorrect, err := password.Validate(request.Password, subject.HashedPassword)
 	if err != nil {
 		return response.Authenticate{}, errors.Wrap(err, "validating password")
 	}
-	if request.Identity != correctIdentity || !passwordCorrect {
+	if !passwordCorrect {
 		return response.Authenticate{}, ErrIncorrectCredentials
 	}
 	now := time.Now()
@@ -46,7 +43,7 @@ func Authenticate(ctx context.Context, components di.Container, request request.
 			ExpirationTime: token.Timestamp(now.Add(30 * time.Minute)),
 			IssuedAt:       token.Timestamp(now),
 			Issuer:         "alph",
-			Subject:        request.Identity,
+			Subject:        request.SubjectID,
 		},
 	}
 	encodedToken, err := jwt.Serialize(token)
