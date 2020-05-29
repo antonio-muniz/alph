@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/antonio-muniz/alph/cmd/alph/internal"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/controller"
 	"github.com/antonio-muniz/alph/pkg/models/request"
 )
 
@@ -27,7 +27,7 @@ func main() {
 				return
 			}
 			ctx := httpRequest.Context()
-			authResponse, err := internal.Authenticate(ctx, request)
+			authResponse, err := controller.Authenticate(ctx, request)
 			switch err {
 			case nil:
 				responseBody, err := json.Marshal(authResponse)
@@ -42,7 +42,7 @@ func main() {
 					httpResponse.WriteHeader(http.StatusInternalServerError)
 					return
 				}
-			case internal.ErrIncorrectCredentials:
+			case controller.ErrIncorrectCredentials:
 				httpResponse.WriteHeader(http.StatusForbidden)
 			default:
 				fmt.Println(err.Error())
