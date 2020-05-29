@@ -4,13 +4,14 @@ import (
 	"context"
 	"time"
 
+	"github.com/antonio-muniz/alph/cmd/alph/internal/config"
 	"github.com/antonio-muniz/alph/pkg/jwt"
 	"github.com/antonio-muniz/alph/pkg/models/request"
 	"github.com/antonio-muniz/alph/pkg/models/response"
 	"github.com/antonio-muniz/alph/pkg/models/token"
 	"github.com/antonio-muniz/alph/pkg/password"
-	fixtures "github.com/antonio-muniz/alph/test/fixtures/encryption"
 	"github.com/pkg/errors"
+	"github.com/sarulabs/di"
 )
 
 const (
@@ -22,7 +23,7 @@ var (
 	ErrIncorrectCredentials = errors.New("Incorrect credentials")
 )
 
-func Authenticate(ctx context.Context, request request.Authenticate) (response.Authenticate, error) {
+func Authenticate(ctx context.Context, components di.Container, request request.Authenticate) (response.Authenticate, error) {
 	correctPasswordHash, err := password.Hash("123456")
 	if err != nil {
 		return response.Authenticate{}, errors.Wrap(err, "hashing correct password")
@@ -52,11 +53,12 @@ func Authenticate(ctx context.Context, request request.Authenticate) (response.A
 	if err != nil {
 		return response.Authenticate{}, errors.Wrap(err, "serializing JWT")
 	}
-	signedToken, err := jwt.Sign(encodedToken, "HS256", "zLcwW6w2MEwS8RMzP71azVbQJyOK4fiV")
+	config := components.Get("config").(config.Config)
+	signedToken, err := jwt.Sign(encodedToken, "HS256", config.JwtSignatureKey)
 	if err != nil {
 		return response.Authenticate{}, errors.Wrap(err, "signing JWT")
 	}
-	accessToken, err := jwt.Encrypt(signedToken, fixtures.PublicKey())
+	accessToken, err := jwt.Encrypt(signedToken, config.JwtEncryptionPublicKey)
 	if err != nil {
 		return response.Authenticate{}, errors.Wrap(err, "encrypting JWT")
 	}

@@ -8,9 +8,18 @@ import (
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/controller"
 	"github.com/antonio-muniz/alph/pkg/models/request"
+	"github.com/sarulabs/di"
 )
 
-func Authenticate(httpResponse http.ResponseWriter, httpRequest *http.Request) {
+type authenticateHandler struct {
+	components di.Container
+}
+
+func NewAuthenticateHandler(components di.Container) http.Handler {
+	return authenticateHandler{components: components}
+}
+
+func (h authenticateHandler) ServeHTTP(httpResponse http.ResponseWriter, httpRequest *http.Request) {
 	body, err := ioutil.ReadAll(httpRequest.Body)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -24,7 +33,7 @@ func Authenticate(httpResponse http.ResponseWriter, httpRequest *http.Request) {
 		return
 	}
 	ctx := httpRequest.Context()
-	authResponse, err := controller.Authenticate(ctx, request)
+	authResponse, err := controller.Authenticate(ctx, h.components, request)
 	switch err {
 	case nil:
 		responseBody, err := json.Marshal(authResponse)
