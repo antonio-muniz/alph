@@ -22,8 +22,12 @@ var (
 func Authenticate(ctx context.Context, components di.Container, request request.Authenticate) (response.Authenticate, error) {
 	database := components.Get("database").(memory.Database)
 	subject, err := database.GetSubject(ctx, request.SubjectID)
-	if err != nil {
+	switch err {
+	case nil:
+	case memory.ErrSubjectNotFound:
 		return response.Authenticate{}, ErrIncorrectCredentials
+	default:
+		return response.Authenticate{}, errors.Wrap(err, "loading subject")
 	}
 	passwordCorrect, err := password.Validate(request.Password, subject.HashedPassword)
 	if err != nil {
