@@ -2,25 +2,33 @@ package handler_test
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	nethttp "net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/database"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/model/auth"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http"
+	"github.com/antonio-muniz/alph/pkg/password"
 	"github.com/stretchr/testify/require"
 )
 
 func TestAuth(t *testing.T) {
 	scenarios := []struct {
 		description        string
+		correctSubjectID   string
+		correctPassword    string
 		request            request.Authenticate
 		expectedStatusCode int
 	}{
 		{
-			description: "authenticates_subject_with_correct_password",
+			description:      "authenticates_subject_with_correct_password",
+			correctSubjectID: "someone@example.org",
+			correctPassword:  "123456",
 			request: request.Authenticate{
 				SubjectID: "someone@example.org",
 				Password:  "123456",
@@ -28,7 +36,19 @@ func TestAuth(t *testing.T) {
 			expectedStatusCode: nethttp.StatusOK,
 		},
 		{
-			description: "does_not_authenticate_subject_with_incorrect_password",
+			description:      "does_not_authenticate_subject_with_incorrect_password",
+			correctSubjectID: "someone@example.org",
+			correctPassword:  "123456",
+			request: request.Authenticate{
+				SubjectID: "someone@example.org",
+				Password:  "654321",
+			},
+			expectedStatusCode: nethttp.StatusForbidden,
+		},
+		{
+			description:      "does_not_authenticate_unknown_subject",
+			correctSubjectID: "someone@example.org",
+			correctPassword:  "123456",
 			request: request.Authenticate{
 				SubjectID: "someone@example.org",
 				Password:  "654321",
@@ -39,7 +59,17 @@ func TestAuth(t *testing.T) {
 
 	for _, scenario := range scenarios {
 		t.Run(scenario.description, func(t *testing.T) {
+			ctx := context.Background()
 			components, err := internal.Components()
+			require.NoError(t, err)
+			hashedCorrectPassword, err := password.Hash(scenario.correctPassword)
+			require.NoError(t, err)
+			database := components.Get("database").(database.DB)
+			subject := auth.Subject{
+				ID:             scenario.correctSubjectID,
+				HashedPassword: hashedCorrectPassword,
+			}
+			err = database.CreateSubject(ctx, subject)
 			require.NoError(t, err)
 			router := http.Router(components)
 			requestBody, err := json.Marshal(scenario.request)

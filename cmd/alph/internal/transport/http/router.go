@@ -19,5 +19,9 @@ func Router(components di.Container) http.Handler {
 		Handle("/api/auth", handler.NewAuthenticateHandler(components)).
 		Methods(http.MethodPost)
 
+	router.
+		Handle("/api/subjects", handler.NewCreateSubjectHandler(components)).
+		Methods(http.MethodPost)
+
 	return router
 }

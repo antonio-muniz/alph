@@ -33,10 +33,10 @@ func (h authenticateHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReq
 		return
 	}
 	ctx := httpRequest.Context()
-	authResponse, err := controller.Authenticate(ctx, h.components, request)
+	response, err := controller.Authenticate(ctx, h.components, request)
 	switch err {
 	case nil:
-		responseBody, err := json.Marshal(authResponse)
+		responseBody, err := json.Marshal(response)
 		if err != nil {
 			fmt.Println(err.Error())
 			httpResponse.WriteHeader(http.StatusInternalServerError)

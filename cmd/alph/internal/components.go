@@ -22,7 +22,7 @@ func Components() (di.Container, error) {
 		di.Def{
 			Name: "database",
 			Build: func(container di.Container) (interface{}, error) {
-				return memory.Database{}, nil
+				return memory.NewDB(), nil
 			},
 		},
 	)

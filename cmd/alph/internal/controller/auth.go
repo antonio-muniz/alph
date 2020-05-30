@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/config"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/database"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/database/memory"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model/response"
@@ -19,7 +20,7 @@ var (
 )
 
 func Authenticate(ctx context.Context, components di.Container, request request.Authenticate) (response.Authenticate, error) {
-	database := components.Get("database").(memory.Database)
+	database := components.Get("database").(database.DB)
 	subject, err := database.GetSubject(ctx, request.SubjectID)
 	switch err {
 	case nil:
