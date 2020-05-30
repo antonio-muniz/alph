@@ -1,4 +1,4 @@
-package token
+package jwt
 
 type Payload struct {
 	Issuer         string    `json:"iss"`

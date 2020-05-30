@@ -3,7 +3,7 @@ package memory
 import (
 	"context"
 
-	"github.com/antonio-muniz/alph/pkg/models/auth"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/models/auth"
 	"github.com/antonio-muniz/alph/pkg/password"
 	"github.com/pkg/errors"
 )

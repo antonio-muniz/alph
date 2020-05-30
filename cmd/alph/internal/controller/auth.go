@@ -6,10 +6,9 @@ import (
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/config"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/database/memory"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/models/request"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/models/response"
 	"github.com/antonio-muniz/alph/pkg/jwt"
-	"github.com/antonio-muniz/alph/pkg/models/request"
-	"github.com/antonio-muniz/alph/pkg/models/response"
-	"github.com/antonio-muniz/alph/pkg/models/token"
 	"github.com/antonio-muniz/alph/pkg/password"
 	"github.com/pkg/errors"
 	"github.com/sarulabs/di"
@@ -37,15 +36,15 @@ func Authenticate(ctx context.Context, components di.Container, request request.
 		return response.Authenticate{}, ErrIncorrectCredentials
 	}
 	now := time.Now()
-	token := token.Token{
-		Header: token.Header{
+	token := jwt.Token{
+		Header: jwt.Header{
 			SignatureAlgorithm: "HS256",
 			TokenType:          "JWT",
 		},
-		Payload: token.Payload{
+		Payload: jwt.Payload{
 			Audience:       "example.org",
-			ExpirationTime: token.Timestamp(now.Add(30 * time.Minute)),
-			IssuedAt:       token.Timestamp(now),
+			ExpirationTime: jwt.Timestamp(now.Add(30 * time.Minute)),
+			IssuedAt:       jwt.Timestamp(now),
 			Issuer:         "alph",
 			Subject:        request.SubjectID,
 		},

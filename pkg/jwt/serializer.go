@@ -5,11 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/antonio-muniz/alph/pkg/models/token"
 	"github.com/pkg/errors"
 )
 
-func Serialize(token token.Token) (string, error) {
+func Serialize(token Token) (string, error) {
 	serializedHeader, err := serializeHeader(token.Header)
 	if err != nil {
 		return "", err
@@ -21,7 +20,7 @@ func Serialize(token token.Token) (string, error) {
 	return fmt.Sprintf("%s.%s", serializedHeader, serializedPayload), nil
 }
 
-func serializeHeader(header token.Header) (string, error) {
+func serializeHeader(header Header) (string, error) {
 	headerJSON, err := json.Marshal(header)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to serialize token header")
@@ -30,7 +29,7 @@ func serializeHeader(header token.Header) (string, error) {
 	return encodedHeader, nil
 }
 
-func serializePayload(payload token.Payload) (string, error) {
+func serializePayload(payload Payload) (string, error) {
 	payloadJSON, err := json.Marshal(payload)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to serialize token payload")

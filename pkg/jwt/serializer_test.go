@@ -10,31 +10,30 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/antonio-muniz/alph/pkg/jwt"
-	"github.com/antonio-muniz/alph/pkg/models/token"
 )
 
 func TestSerialize(t *testing.T) {
 	scenarios := []struct {
 		description     string
-		token           token.Token
+		token           jwt.Token
 		expectedHeader  map[string]interface{}
 		expectedPayload map[string]interface{}
 	}{
 		{
 			description: "serializes_a_token_to_string",
-			token: token.Token{
-				Header: token.Header{
+			token: jwt.Token{
+				Header: jwt.Header{
 					SignatureAlgorithm: "HS256",
 					TokenType:          "JWT",
 				},
-				Payload: token.Payload{
+				Payload: jwt.Payload{
 					Issuer:   "alph",
 					Audience: "example.org",
 					Subject:  "someone@example.org",
-					IssuedAt: token.Timestamp(
+					IssuedAt: jwt.Timestamp(
 						time.Date(2020, time.May, 24, 20, 05, 37, 165098132, time.UTC),
 					),
-					ExpirationTime: token.Timestamp(
+					ExpirationTime: jwt.Timestamp(
 						time.Date(2020, time.May, 24, 20, 35, 37, 165098132, time.UTC),
 					),
 				},

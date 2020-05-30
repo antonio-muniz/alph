@@ -1,4 +1,4 @@
-package token
+package jwt
 
 type Token struct {
 	Header  Header

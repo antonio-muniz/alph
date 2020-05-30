@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/controller"
-	"github.com/antonio-muniz/alph/pkg/models/request"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/models/request"
 	"github.com/sarulabs/di"
 )
 
