@@ -6,8 +6,8 @@ import (
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/config"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/database/memory"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/models/request"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/models/response"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/model/response"
 	"github.com/antonio-muniz/alph/pkg/jwt"
 	"github.com/antonio-muniz/alph/pkg/password"
 	"github.com/pkg/errors"

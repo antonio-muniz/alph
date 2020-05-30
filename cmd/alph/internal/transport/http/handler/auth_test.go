@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/models/request"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http"
 	"github.com/stretchr/testify/require"
 )
