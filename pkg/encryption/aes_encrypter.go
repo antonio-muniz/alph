@@ -10,17 +10,25 @@ import (
 	"github.com/pkg/errors"
 )
 
+var ErrBadAESKeyLength = errors.New("AES key is not 32 bytes long")
+var ErrBadEncryptedMessageEncoding = errors.New("encrypted message is not in base64")
+
 func AESEncrypt(message string, encryptionKey string) (string, error) {
-	block, err := aes.NewCipher([]byte(encryptionKey))
+	encryptionKeyBytes := []byte(encryptionKey)
+	err := validateAESKey(encryptionKeyBytes)
 	if err != nil {
-		return "", errors.Wrap(err, "error creating AES cipher block")
+		return "", err
+	}
+	block, err := aes.NewCipher(encryptionKeyBytes)
+	if err != nil {
+		return "", errors.Wrap(err, "creating AES cipher block")
 	}
 	messageBytes := []byte(message)
 	encryptedMessageBytes := make([]byte, aes.BlockSize+len(messageBytes))
 	initVector := encryptedMessageBytes[:aes.BlockSize]
 	_, err = io.ReadFull(rand.Reader, initVector)
 	if err != nil {
-		return "", errors.Wrap(err, "error generating initialization vector")
+		return "", errors.Wrap(err, "generating initialization vector")
 	}
 	encrypter := cipher.NewCFBEncrypter(block, initVector)
 	encrypter.XORKeyStream(encryptedMessageBytes[aes.BlockSize:], messageBytes)
@@ -28,14 +36,19 @@ func AESEncrypt(message string, encryptionKey string) (string, error) {
 	return encryptedMessage, nil
 }
 
-func AESDecrypt(encryptedMessage string, encryptionKey string) (string, error) {
+func AESDecrypt(encryptedMessage string, decryptionKey string) (string, error) {
+	decryptionKeyBytes := []byte(decryptionKey)
+	err := validateAESKey(decryptionKeyBytes)
+	if err != nil {
+		return "", err
+	}
+	block, err := aes.NewCipher(decryptionKeyBytes)
+	if err != nil {
+		return "", errors.Wrap(err, "creating AES cipher block")
+	}
 	encryptedMessageBytes, err := base64.RawURLEncoding.DecodeString(encryptedMessage)
 	if err != nil {
-		return "", errors.Wrap(err, "error decoding encrypted message")
-	}
-	block, err := aes.NewCipher([]byte(encryptionKey))
-	if err != nil {
-		return "", errors.Wrap(err, "error creating AES cipher block")
+		return "", ErrBadEncryptedMessageEncoding
 	}
 	initVector := encryptedMessageBytes[:aes.BlockSize]
 	encryptedMessageBytes = encryptedMessageBytes[aes.BlockSize:]
@@ -44,4 +57,11 @@ func AESDecrypt(encryptedMessage string, encryptionKey string) (string, error) {
 	decrypter.XORKeyStream(decryptedMessageBytes, encryptedMessageBytes)
 	decryptedMessage := string(decryptedMessageBytes)
 	return decryptedMessage, nil
+}
+
+func validateAESKey(keyBytes []byte) error {
+	if len(keyBytes) != 32 {
+		return ErrBadAESKeyLength
+	}
+	return nil
 }
