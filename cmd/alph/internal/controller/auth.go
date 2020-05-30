@@ -5,10 +5,9 @@ import (
 	"time"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/config"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/database"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/database/memory"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model/response"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/storage"
 	"github.com/antonio-muniz/alph/pkg/jwt"
 	"github.com/antonio-muniz/alph/pkg/password"
 	"github.com/pkg/errors"
@@ -20,11 +19,11 @@ var (
 )
 
 func Authenticate(ctx context.Context, components di.Container, request request.Authenticate) (response.Authenticate, error) {
-	database := components.Get("database").(database.DB)
+	database := components.Get("database").(storage.Database)
 	subject, err := database.GetSubject(ctx, request.SubjectID)
 	switch err {
 	case nil:
-	case memory.ErrSubjectNotFound:
+	case storage.ErrSubjectNotFound:
 		return response.Authenticate{}, ErrIncorrectCredentials
 	default:
 		return response.Authenticate{}, errors.Wrap(err, "loading subject")

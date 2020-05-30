@@ -3,9 +3,9 @@ package controller
 import (
 	"context"
 
-	"github.com/antonio-muniz/alph/cmd/alph/internal/database"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model/auth"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/storage"
 	"github.com/antonio-muniz/alph/pkg/password"
 	"github.com/sarulabs/di"
 )
@@ -19,7 +19,7 @@ func CreateSubject(ctx context.Context, components di.Container, request request
 		ID:             request.SubjectID,
 		HashedPassword: hashedPassword,
 	}
-	database := components.Get("database").(database.DB)
+	database := components.Get("database").(storage.Database)
 	err = database.CreateSubject(ctx, subject)
 	if err != nil {
 		return err

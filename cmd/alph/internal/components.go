@@ -2,7 +2,7 @@ package internal
 
 import (
 	"github.com/antonio-muniz/alph/cmd/alph/internal/config"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/database/memory"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/storage/memory"
 	"github.com/pkg/errors"
 	"github.com/sarulabs/di"
 )
@@ -22,7 +22,7 @@ func Components() (di.Container, error) {
 		di.Def{
 			Name: "database",
 			Build: func(container di.Container) (interface{}, error) {
-				return memory.NewDB(), nil
+				return memory.NewDatabase(), nil
 			},
 		},
 	)

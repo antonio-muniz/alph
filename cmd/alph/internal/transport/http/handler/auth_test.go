@@ -9,9 +9,9 @@ import (
 	"testing"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/database"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model/auth"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/storage"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http"
 	"github.com/antonio-muniz/alph/pkg/password"
 	"github.com/stretchr/testify/require"
@@ -64,7 +64,7 @@ func TestAuth(t *testing.T) {
 			require.NoError(t, err)
 			hashedCorrectPassword, err := password.Hash(scenario.correctPassword)
 			require.NoError(t, err)
-			database := components.Get("database").(database.DB)
+			database := components.Get("database").(storage.Database)
 			subject := auth.Subject{
 				ID:             scenario.correctSubjectID,
 				HashedPassword: hashedCorrectPassword,

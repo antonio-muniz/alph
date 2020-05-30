@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/database"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/storage"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http"
 	"github.com/antonio-muniz/alph/pkg/password"
 	"github.com/stretchr/testify/require"
@@ -46,7 +46,7 @@ func TestCreateSubject(t *testing.T) {
 			response := httptest.NewRecorder()
 			router.ServeHTTP(response, request)
 			require.Equal(t, scenario.expectedStatusCode, response.Code)
-			database := components.Get("database").(database.DB)
+			database := components.Get("database").(storage.Database)
 			subject, err := database.GetSubject(ctx, scenario.request.SubjectID)
 			require.NoError(t, err)
 			passwordMatch, err := password.Validate(scenario.request.Password, subject.HashedPassword)
