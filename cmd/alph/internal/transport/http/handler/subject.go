@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/controller"
@@ -21,14 +20,8 @@ func NewCreateSubjectHandler(components di.Container) http.Handler {
 }
 
 func (h createSubjectHandler) ServeHTTP(httpResponse http.ResponseWriter, httpRequest *http.Request) {
-	body, err := ioutil.ReadAll(httpRequest.Body)
-	if err != nil {
-		fmt.Println(err.Error())
-		httpResponse.WriteHeader(http.StatusInternalServerError)
-		return
-	}
 	var request request.CreateSubject
-	err = json.Unmarshal(body, &request)
+	err := json.NewDecoder(httpRequest.Body).Decode(&request)
 	if err != nil {
 		httpResponse.WriteHeader(http.StatusBadRequest)
 		return

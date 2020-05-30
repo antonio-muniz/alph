@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/controller"
@@ -20,14 +19,8 @@ func NewAuthenticateHandler(components di.Container) http.Handler {
 }
 
 func (h authenticateHandler) ServeHTTP(httpResponse http.ResponseWriter, httpRequest *http.Request) {
-	body, err := ioutil.ReadAll(httpRequest.Body)
-	if err != nil {
-		fmt.Println(err.Error())
-		httpResponse.WriteHeader(http.StatusInternalServerError)
-		return
-	}
 	var request request.Authenticate
-	err = json.Unmarshal(body, &request)
+	err := json.NewDecoder(httpRequest.Body).Decode(&request)
 	if err != nil {
 		httpResponse.WriteHeader(http.StatusBadRequest)
 		return
