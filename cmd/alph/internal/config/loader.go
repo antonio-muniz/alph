@@ -4,8 +4,8 @@ import "strings"
 
 func LoadConfiguration() Config {
 	return Config{
-		JwtSignatureKey: "zLcwW6w2MEwS8RMzP71azVbQJyOK4fiV",
-		JwtEncryptionPublicKey: strings.Join(
+		JWTSignatureKey: "zLcwW6w2MEwS8RMzP71azVbQJyOK4fiV",
+		JWTEncryptionPublicKey: strings.Join(
 			[]string{
 				"-----BEGIN PUBLIC KEY-----",
 				"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzO8HOyr435l84SaPlOT0",
