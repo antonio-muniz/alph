@@ -50,19 +50,11 @@ func Authenticate(ctx context.Context, components di.Container, request request.
 			Subject:        request.SubjectID,
 		},
 	}
-	encodedToken, err := jwt.Serialize(token)
-	if err != nil {
-		return response.Authenticate{}, errors.Wrap(err, "serializing JWT")
-	}
 	config := components.Get("config").(config.Config)
-	signedToken, err := jwt.Sign(encodedToken, config.JWTSignatureKey)
-	if err != nil {
-		return response.Authenticate{}, errors.Wrap(err, "signing JWT")
-	}
-	accessToken, err := jwt.Encrypt(signedToken, config.JWTEncryptionPublicKey)
-	if err != nil {
-		return response.Authenticate{}, errors.Wrap(err, "encrypting JWT")
-	}
+	accessToken, err := jwt.Pack(token, jwt.PackSettings{
+		SignatureKey:  config.JWTSignatureKey,
+		EncryptionKey: config.JWTEncryptionPublicKey,
+	})
 
 	authResponse := response.Authenticate{AccessToken: accessToken}
 

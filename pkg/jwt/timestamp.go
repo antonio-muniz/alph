@@ -18,6 +18,6 @@ func (t *Timestamp) UnmarshalJSON(serializedTimestamp []byte) (err error) {
 	if err != nil {
 		return err
 	}
-	*(*time.Time)(t) = time.Unix(secondsSinceEpoch, 0)
+	*(*time.Time)(t) = time.Unix(secondsSinceEpoch, 0).UTC()
 	return nil
 }

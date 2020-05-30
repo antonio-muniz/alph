@@ -5,10 +5,7 @@ import (
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/database"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model/auth"
-	"github.com/pkg/errors"
 )
-
-var ErrSubjectNotFound = errors.New("subject not found")
 
 type db struct {
 	subjects map[string]auth.Subject
@@ -28,7 +25,7 @@ func (db *db) CreateSubject(ctx context.Context, subject auth.Subject) error {
 func (db *db) GetSubject(ctx context.Context, subjectID string) (auth.Subject, error) {
 	subject, found := db.subjects[subjectID]
 	if !found {
-		return auth.Subject{}, ErrSubjectNotFound
+		return auth.Subject{}, database.ErrSubjectNotFound
 	}
 	return subject, nil
 }

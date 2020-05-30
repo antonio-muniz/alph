@@ -5,9 +5,12 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"strings"
 
 	"github.com/pkg/errors"
 )
+
+var ErrIncorrectSignature = errors.New("incorrect signature")
 
 func Sign(encodedToken string, signingKey string) (string, error) {
 	signature, err := generateSignature(encodedToken, signingKey)
@@ -16,6 +19,19 @@ func Sign(encodedToken string, signingKey string) (string, error) {
 	}
 	signedToken := fmt.Sprintf("%s.%s", encodedToken, signature)
 	return signedToken, nil
+}
+
+func CheckSignature(signedToken string, signingKey string) error {
+	separationIndex := strings.LastIndex(signedToken, ".")
+	unsignedToken := signedToken[:separationIndex]
+	expectedSignedToken, err := Sign(unsignedToken, signingKey)
+	if err != nil {
+		return err
+	}
+	if expectedSignedToken != signedToken {
+		return ErrIncorrectSignature
+	}
+	return nil
 }
 
 func generateSignature(encodedToken string, signingKey string) (string, error) {

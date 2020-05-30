@@ -31,10 +31,10 @@ func TestSerialize(t *testing.T) {
 					Audience: "example.org",
 					Subject:  "someone@example.org",
 					IssuedAt: jwt.Timestamp(
-						time.Date(2020, time.May, 24, 20, 05, 37, 165098132, time.UTC),
+						time.Date(2020, time.May, 24, 20, 05, 37, 0, time.UTC),
 					),
 					ExpirationTime: jwt.Timestamp(
-						time.Date(2020, time.May, 24, 20, 35, 37, 165098132, time.UTC),
+						time.Date(2020, time.May, 24, 20, 35, 37, 0, time.UTC),
 					),
 				},
 			},
@@ -60,16 +60,20 @@ func TestSerialize(t *testing.T) {
 			tokenComponents := strings.SplitN(serializedToken, ".", 2)
 			require.Len(t, tokenComponents, 2)
 
-			header := deserializeTokenComponent(t, tokenComponents[0])
+			header := deserializeToMap(t, tokenComponents[0])
 			require.Equal(t, scenario.expectedHeader, header)
 
-			payload := deserializeTokenComponent(t, tokenComponents[1])
+			payload := deserializeToMap(t, tokenComponents[1])
 			require.Equal(t, scenario.expectedPayload, payload)
+
+			deserializedToken, err := jwt.Deserialize(serializedToken)
+			require.NoError(t, err)
+			require.Equal(t, scenario.token, deserializedToken)
 		})
 	}
 }
 
-func deserializeTokenComponent(t *testing.T, serializedComponent string) map[string]interface{} {
+func deserializeToMap(t *testing.T, serializedComponent string) map[string]interface{} {
 	componentJSON, err := base64.RawURLEncoding.DecodeString(serializedComponent)
 	require.NoError(t, err)
 	var component map[string]interface{}

@@ -36,3 +36,32 @@ func TestSign(t *testing.T) {
 		})
 	}
 }
+
+func TestCheckSignature(t *testing.T) {
+	scenarios := []struct {
+		description   string
+		signedToken   string
+		signingKey    string
+		expectedError error
+	}{
+		{
+			description:   "returns_true_if_the_signature_is_correct",
+			signedToken:   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhbHBoIiwic3ViIjoic29tZW9uZUBleGFtcGxlLm9yZyIsImF1ZCI6ImV4YW1wbGUub3JnIiwiaWF0IjoiMjAyMC0wNS0yNFQyMDowMDowMFoiLCJleHAiOiIyMDIwLTA1LTI0VDIwOjMwOjAwWiJ9.AVC8mWAWEkQYYeduwnQVGyaOUXHKpQkbx4GT-iv7bOY",
+			signingKey:    "zLcwW6w2MEwS8RMzP71azVbQJyOK4fiV",
+			expectedError: nil,
+		},
+		{
+			description:   "returns_false_if_the_signature_is_incorrect",
+			signedToken:   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhbHBoIiwic3ViIjoic29tZW9uZUBleGFtcGxlLm9yZyIsImF1ZCI6ImV4YW1wbGUub3JnIiwiaWF0IjoiMjAyMC0wNS0yNFQyMDowMDowMFoiLCJleHAiOiIyMDIwLTA1LTI0VDIwOjMwOjAwWiJ9.BVC8mWAWEkQYYeduwnQVGyaOUXHKpQkbx4GT-iv7bOY",
+			signingKey:    "zLcwW6w2MEwS8RMzP71azVbQJyOK4fiV",
+			expectedError: jwt.ErrIncorrectSignature,
+		},
+	}
+
+	for _, scenario := range scenarios {
+		t.Run(scenario.description, func(t *testing.T) {
+			err := jwt.CheckSignature(scenario.signedToken, scenario.signingKey)
+			require.Equal(t, scenario.expectedError, err)
+		})
+	}
+}
