@@ -10,23 +10,23 @@ import (
 	"github.com/antonio-muniz/alph/pkg/system"
 )
 
-type authenticateHandler struct {
+type passwordAuthHandler struct {
 	system system.System
 }
 
-func NewAuthenticateHandler(sys system.System) http.Handler {
-	return authenticateHandler{system: sys}
+func NewPasswordAuthHandler(sys system.System) http.Handler {
+	return passwordAuthHandler{system: sys}
 }
 
-func (h authenticateHandler) ServeHTTP(httpResponse http.ResponseWriter, httpRequest *http.Request) {
-	var request request.Authenticate
+func (h passwordAuthHandler) ServeHTTP(httpResponse http.ResponseWriter, httpRequest *http.Request) {
+	var request request.PasswordAuth
 	err := json.NewDecoder(httpRequest.Body).Decode(&request)
 	if err != nil {
 		httpResponse.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	ctx := httpRequest.Context()
-	response, err := controller.Authenticate(ctx, h.system, request)
+	response, err := controller.PasswordAuth(ctx, h.system, request)
 	switch err {
 	case nil:
 		responseBody, err := json.Marshal(response)

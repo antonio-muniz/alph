@@ -22,14 +22,14 @@ func TestAuth(t *testing.T) {
 		description        string
 		correctUsername    string
 		correctPassword    string
-		request            request.Authenticate
+		request            request.PasswordAuth
 		expectedStatusCode int
 	}{
 		{
 			description:     "authenticates_user_with_correct_password",
 			correctUsername: "someone@example.org",
 			correctPassword: "123456",
-			request: request.Authenticate{
+			request: request.PasswordAuth{
 				Username: "someone@example.org",
 				Password: "123456",
 			},
@@ -39,7 +39,7 @@ func TestAuth(t *testing.T) {
 			description:     "does_not_authenticate_user_with_incorrect_password",
 			correctUsername: "someone@example.org",
 			correctPassword: "123456",
-			request: request.Authenticate{
+			request: request.PasswordAuth{
 				Username: "someone@example.org",
 				Password: "654321",
 			},
@@ -49,7 +49,7 @@ func TestAuth(t *testing.T) {
 			description:     "does_not_authenticate_unknown_user",
 			correctUsername: "someone@example.org",
 			correctPassword: "123456",
-			request: request.Authenticate{
+			request: request.PasswordAuth{
 				Username: "someone@example.org",
 				Password: "654321",
 			},

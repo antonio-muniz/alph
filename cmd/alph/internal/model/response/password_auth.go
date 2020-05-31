@@ -1,5 +1,5 @@
 package response
 
-type Authenticate struct {
+type PasswordAuth struct {
 	AccessToken string `json:"access_token"`
 }

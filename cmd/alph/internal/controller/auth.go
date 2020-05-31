@@ -18,22 +18,22 @@ var (
 	ErrIncorrectCredentials = errors.New("Incorrect credentials")
 )
 
-func Authenticate(ctx context.Context, sys system.System, request request.Authenticate) (response.Authenticate, error) {
+func PasswordAuth(ctx context.Context, sys system.System, request request.PasswordAuth) (response.PasswordAuth, error) {
 	database := sys.Get("database").(storage.Database)
 	user, err := database.GetUser(ctx, request.Username)
 	switch err {
 	case nil:
 	case storage.ErrUserNotFound:
-		return response.Authenticate{}, ErrIncorrectCredentials
+		return response.PasswordAuth{}, ErrIncorrectCredentials
 	default:
-		return response.Authenticate{}, errors.Wrap(err, "loading user")
+		return response.PasswordAuth{}, errors.Wrap(err, "loading user")
 	}
 	passwordCorrect, err := password.Validate(request.Password, user.HashedPassword)
 	if err != nil {
-		return response.Authenticate{}, errors.Wrap(err, "validating password")
+		return response.PasswordAuth{}, errors.Wrap(err, "validating password")
 	}
 	if !passwordCorrect {
-		return response.Authenticate{}, ErrIncorrectCredentials
+		return response.PasswordAuth{}, ErrIncorrectCredentials
 	}
 	now := time.Now()
 	token := jwt.Token{
@@ -55,7 +55,7 @@ func Authenticate(ctx context.Context, sys system.System, request request.Authen
 		EncryptionKey: config.JWTEncryptionPublicKey,
 	})
 
-	authResponse := response.Authenticate{AccessToken: accessToken}
+	authResponse := response.PasswordAuth{AccessToken: accessToken}
 
 	return authResponse, nil
 }

@@ -16,7 +16,7 @@ func Router(sys system.System) http.Handler {
 	router.Use(middleware.ContentNegotiation)
 
 	router.
-		Handle("/api/auth/password", handler.NewAuthenticateHandler(sys)).
+		Handle("/api/auth/password", handler.NewPasswordAuthHandler(sys)).
 		Methods(http.MethodPost)
 
 	router.
