@@ -1,4 +1,4 @@
-package auth
+package model
 
 type User struct {
 	Username       string

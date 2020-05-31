@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/model/auth"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/model"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/storage"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http"
@@ -65,7 +65,7 @@ func TestAuth(t *testing.T) {
 			hashedCorrectPassword, err := password.Hash(scenario.correctPassword)
 			require.NoError(t, err)
 			database := sys.Get("database").(storage.Database)
-			user := auth.User{
+			user := model.User{
 				Username:       scenario.correctUsername,
 				HashedPassword: hashedCorrectPassword,
 			}
