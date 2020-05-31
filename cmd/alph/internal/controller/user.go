@@ -10,17 +10,17 @@ import (
 	"github.com/antonio-muniz/alph/pkg/system"
 )
 
-func CreateSubject(ctx context.Context, sys system.System, request request.CreateSubject) error {
+func CreateUser(ctx context.Context, sys system.System, request request.CreateUser) error {
 	hashedPassword, err := password.Hash(request.Password)
 	if err != nil {
 		return err
 	}
-	subject := auth.Subject{
-		ID:             request.SubjectID,
+	user := auth.User{
+		Username:       request.Username,
 		HashedPassword: hashedPassword,
 	}
 	database := sys.Get("database").(storage.Database)
-	err = database.CreateSubject(ctx, subject)
+	err = database.CreateUser(ctx, user)
 	if err != nil {
 		return err
 	}

@@ -20,7 +20,7 @@ func Router(sys system.System) http.Handler {
 		Methods(http.MethodPost)
 
 	router.
-		Handle("/api/subjects", handler.NewCreateSubjectHandler(sys)).
+		Handle("/api/users", handler.NewCreateUserHandler(sys)).
 		Methods(http.MethodPost)
 
 	return router

@@ -20,15 +20,15 @@ var (
 
 func Authenticate(ctx context.Context, sys system.System, request request.Authenticate) (response.Authenticate, error) {
 	database := sys.Get("database").(storage.Database)
-	subject, err := database.GetSubject(ctx, request.Username)
+	user, err := database.GetUser(ctx, request.Username)
 	switch err {
 	case nil:
-	case storage.ErrSubjectNotFound:
+	case storage.ErrUserNotFound:
 		return response.Authenticate{}, ErrIncorrectCredentials
 	default:
-		return response.Authenticate{}, errors.Wrap(err, "loading subject")
+		return response.Authenticate{}, errors.Wrap(err, "loading user")
 	}
-	passwordCorrect, err := password.Validate(request.Password, subject.HashedPassword)
+	passwordCorrect, err := password.Validate(request.Password, user.HashedPassword)
 	if err != nil {
 		return response.Authenticate{}, errors.Wrap(err, "validating password")
 	}

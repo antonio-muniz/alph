@@ -16,17 +16,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreateSubject(t *testing.T) {
+func TestCreateUser(t *testing.T) {
 	scenarios := []struct {
 		description        string
-		request            request.CreateSubject
+		request            request.CreateUser
 		expectedStatusCode int
 	}{
 		{
-			description: "creates_a_valid_subject",
-			request: request.CreateSubject{
-				SubjectID: "new.user@example.org",
-				Password:  "hakunamatata",
+			description: "creates_a_valid_user",
+			request: request.CreateUser{
+				Username: "new.user@example.org",
+				Password: "hakunamatata",
 			},
 			expectedStatusCode: nethttp.StatusCreated,
 		},
@@ -41,15 +41,15 @@ func TestCreateSubject(t *testing.T) {
 			requestBody, err := json.Marshal(scenario.request)
 			require.NoError(t, err)
 			requestBodyReader := bytes.NewReader(requestBody)
-			request, err := nethttp.NewRequest(nethttp.MethodPost, "/api/subjects", requestBodyReader)
+			request, err := nethttp.NewRequest(nethttp.MethodPost, "/api/users", requestBodyReader)
 			request.Header.Set("Content-Type", "application/json")
 			response := httptest.NewRecorder()
 			router.ServeHTTP(response, request)
 			require.Equal(t, scenario.expectedStatusCode, response.Code)
 			database := sys.Get("database").(storage.Database)
-			subject, err := database.GetSubject(ctx, scenario.request.SubjectID)
+			user, err := database.GetUser(ctx, scenario.request.Username)
 			require.NoError(t, err)
-			passwordMatch, err := password.Validate(scenario.request.Password, subject.HashedPassword)
+			passwordMatch, err := password.Validate(scenario.request.Password, user.HashedPassword)
 			require.NoError(t, err)
 			require.True(t, passwordMatch)
 		})

@@ -8,24 +8,24 @@ import (
 )
 
 type database struct {
-	subjects map[string]auth.Subject
+	users map[string]auth.User
 }
 
 func NewDatabase() storage.Database {
 	return &database{
-		subjects: make(map[string]auth.Subject),
+		users: make(map[string]auth.User),
 	}
 }
 
-func (d *database) CreateSubject(ctx context.Context, subject auth.Subject) error {
-	d.subjects[subject.ID] = subject
+func (d *database) CreateUser(ctx context.Context, user auth.User) error {
+	d.users[user.Username] = user
 	return nil
 }
 
-func (d *database) GetSubject(ctx context.Context, subjectID string) (auth.Subject, error) {
-	subject, found := d.subjects[subjectID]
+func (d *database) GetUser(ctx context.Context, username string) (auth.User, error) {
+	user, found := d.users[username]
 	if !found {
-		return auth.Subject{}, storage.ErrSubjectNotFound
+		return auth.User{}, storage.ErrUserNotFound
 	}
-	return subject, nil
+	return user, nil
 }

@@ -11,23 +11,23 @@ import (
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
 )
 
-type createSubjectHandler struct {
+type createUserHandler struct {
 	system system.System
 }
 
-func NewCreateSubjectHandler(sys system.System) http.Handler {
-	return createSubjectHandler{system: sys}
+func NewCreateUserHandler(sys system.System) http.Handler {
+	return createUserHandler{system: sys}
 }
 
-func (h createSubjectHandler) ServeHTTP(httpResponse http.ResponseWriter, httpRequest *http.Request) {
-	var request request.CreateSubject
+func (h createUserHandler) ServeHTTP(httpResponse http.ResponseWriter, httpRequest *http.Request) {
+	var request request.CreateUser
 	err := json.NewDecoder(httpRequest.Body).Decode(&request)
 	if err != nil {
 		httpResponse.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	ctx := httpRequest.Context()
-	err = controller.CreateSubject(ctx, h.system, request)
+	err = controller.CreateUser(ctx, h.system, request)
 	switch err {
 	case nil:
 		httpResponse.WriteHeader(http.StatusCreated)

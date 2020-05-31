@@ -20,15 +20,15 @@ import (
 func TestAuth(t *testing.T) {
 	scenarios := []struct {
 		description        string
-		correctSubjectID   string
+		correctUsername    string
 		correctPassword    string
 		request            request.Authenticate
 		expectedStatusCode int
 	}{
 		{
-			description:      "authenticates_subject_with_correct_password",
-			correctSubjectID: "someone@example.org",
-			correctPassword:  "123456",
+			description:     "authenticates_user_with_correct_password",
+			correctUsername: "someone@example.org",
+			correctPassword: "123456",
 			request: request.Authenticate{
 				Username: "someone@example.org",
 				Password: "123456",
@@ -36,9 +36,9 @@ func TestAuth(t *testing.T) {
 			expectedStatusCode: nethttp.StatusOK,
 		},
 		{
-			description:      "does_not_authenticate_subject_with_incorrect_password",
-			correctSubjectID: "someone@example.org",
-			correctPassword:  "123456",
+			description:     "does_not_authenticate_user_with_incorrect_password",
+			correctUsername: "someone@example.org",
+			correctPassword: "123456",
 			request: request.Authenticate{
 				Username: "someone@example.org",
 				Password: "654321",
@@ -46,9 +46,9 @@ func TestAuth(t *testing.T) {
 			expectedStatusCode: nethttp.StatusForbidden,
 		},
 		{
-			description:      "does_not_authenticate_unknown_subject",
-			correctSubjectID: "someone@example.org",
-			correctPassword:  "123456",
+			description:     "does_not_authenticate_unknown_user",
+			correctUsername: "someone@example.org",
+			correctPassword: "123456",
 			request: request.Authenticate{
 				Username: "someone@example.org",
 				Password: "654321",
@@ -65,11 +65,11 @@ func TestAuth(t *testing.T) {
 			hashedCorrectPassword, err := password.Hash(scenario.correctPassword)
 			require.NoError(t, err)
 			database := sys.Get("database").(storage.Database)
-			subject := auth.Subject{
-				ID:             scenario.correctSubjectID,
+			user := auth.User{
+				Username:       scenario.correctUsername,
 				HashedPassword: hashedCorrectPassword,
 			}
-			err = database.CreateSubject(ctx, subject)
+			err = database.CreateUser(ctx, user)
 			require.NoError(t, err)
 			router := http.Router(sys)
 			requestBody, err := json.Marshal(scenario.request)

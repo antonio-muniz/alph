@@ -7,9 +7,9 @@ import (
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model/auth"
 )
 
-var ErrSubjectNotFound = errors.New("subject not found")
+var ErrUserNotFound = errors.New("user not found")
 
 type Database interface {
-	CreateSubject(ctx context.Context, subject auth.Subject) error
-	GetSubject(ctx context.Context, subjectID string) (auth.Subject, error)
+	CreateUser(ctx context.Context, user auth.User) error
+	GetUser(ctx context.Context, username string) (auth.User, error)
 }

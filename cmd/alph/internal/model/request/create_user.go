@@ -1,6 +1,6 @@
 package request
 
-type Authenticate struct {
+type CreateUser struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
