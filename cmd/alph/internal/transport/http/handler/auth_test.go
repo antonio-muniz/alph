@@ -60,18 +60,18 @@ func TestAuth(t *testing.T) {
 	for _, scenario := range scenarios {
 		t.Run(scenario.description, func(t *testing.T) {
 			ctx := context.Background()
-			components, err := internal.Components()
+			sys, err := internal.System()
 			require.NoError(t, err)
 			hashedCorrectPassword, err := password.Hash(scenario.correctPassword)
 			require.NoError(t, err)
-			database := components.Get("database").(storage.Database)
+			database := sys.Get("database").(storage.Database)
 			subject := auth.Subject{
 				ID:             scenario.correctSubjectID,
 				HashedPassword: hashedCorrectPassword,
 			}
 			err = database.CreateSubject(ctx, subject)
 			require.NoError(t, err)
-			router := http.Router(components)
+			router := http.Router(sys)
 			requestBody, err := json.Marshal(scenario.request)
 			require.NoError(t, err)
 			requestBodyReader := bytes.NewReader(requestBody)

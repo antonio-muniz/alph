@@ -35,9 +35,9 @@ func TestCreateSubject(t *testing.T) {
 	for _, scenario := range scenarios {
 		t.Run(scenario.description, func(t *testing.T) {
 			ctx := context.Background()
-			components, err := internal.Components()
+			sys, err := internal.System()
 			require.NoError(t, err)
-			router := http.Router(components)
+			router := http.Router(sys)
 			requestBody, err := json.Marshal(scenario.request)
 			require.NoError(t, err)
 			requestBodyReader := bytes.NewReader(requestBody)
@@ -46,7 +46,7 @@ func TestCreateSubject(t *testing.T) {
 			response := httptest.NewRecorder()
 			router.ServeHTTP(response, request)
 			require.Equal(t, scenario.expectedStatusCode, response.Code)
-			database := components.Get("database").(storage.Database)
+			database := sys.Get("database").(storage.Database)
 			subject, err := database.GetSubject(ctx, scenario.request.SubjectID)
 			require.NoError(t, err)
 			passwordMatch, err := password.Validate(scenario.request.Password, subject.HashedPassword)

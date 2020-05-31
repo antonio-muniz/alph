@@ -9,11 +9,11 @@ import (
 )
 
 func main() {
-	components, err := internal.Components()
+	sys, err := internal.System()
 	if err != nil {
 		panic(err)
 	}
-	router := http.Router(components)
+	router := http.Router(sys)
 	fmt.Println("Starting server at port 8080...")
 	nethttp.ListenAndServe(":8080", router)
 }

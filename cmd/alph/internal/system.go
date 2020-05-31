@@ -3,14 +3,15 @@ package internal
 import (
 	"github.com/antonio-muniz/alph/cmd/alph/internal/config"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/storage/memory"
+	"github.com/antonio-muniz/alph/pkg/system"
 	"github.com/pkg/errors"
 	"github.com/sarulabs/di"
 )
 
-func Components() (di.Container, error) {
+func System() (system.System, error) {
 	builder, err := di.NewBuilder()
 	if err != nil {
-		return nil, errors.Wrap(err, "error building components")
+		return system.System{}, errors.Wrap(err, "error building components")
 	}
 	builder.Add(
 		di.Def{
@@ -27,5 +28,6 @@ func Components() (di.Container, error) {
 		},
 	)
 	container := builder.Build()
-	return container, nil
+	system := system.New(container)
+	return system, nil
 }

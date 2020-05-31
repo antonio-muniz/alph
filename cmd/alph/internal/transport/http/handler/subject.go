@@ -6,17 +6,17 @@ import (
 	"net/http"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/controller"
+	"github.com/antonio-muniz/alph/pkg/system"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
-	"github.com/sarulabs/di"
 )
 
 type createSubjectHandler struct {
-	components di.Container
+	system system.System
 }
 
-func NewCreateSubjectHandler(components di.Container) http.Handler {
-	return createSubjectHandler{components: components}
+func NewCreateSubjectHandler(sys system.System) http.Handler {
+	return createSubjectHandler{system: sys}
 }
 
 func (h createSubjectHandler) ServeHTTP(httpResponse http.ResponseWriter, httpRequest *http.Request) {
@@ -27,7 +27,7 @@ func (h createSubjectHandler) ServeHTTP(httpResponse http.ResponseWriter, httpRe
 		return
 	}
 	ctx := httpRequest.Context()
-	err = controller.CreateSubject(ctx, h.components, request)
+	err = controller.CreateSubject(ctx, h.system, request)
 	switch err {
 	case nil:
 		httpResponse.WriteHeader(http.StatusCreated)

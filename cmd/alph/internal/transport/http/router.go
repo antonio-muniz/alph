@@ -5,22 +5,22 @@ import (
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/handler"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/middleware"
+	"github.com/antonio-muniz/alph/pkg/system"
 	"github.com/gorilla/mux"
-	"github.com/sarulabs/di"
 )
 
-func Router(components di.Container) http.Handler {
+func Router(sys system.System) http.Handler {
 	router := mux.NewRouter()
 
 	router.Use(middleware.PanicRecovery)
 	router.Use(middleware.ContentNegotiation)
 
 	router.
-		Handle("/api/auth", handler.NewAuthenticateHandler(components)).
+		Handle("/api/auth", handler.NewAuthenticateHandler(sys)).
 		Methods(http.MethodPost)
 
 	router.
-		Handle("/api/subjects", handler.NewCreateSubjectHandler(components)).
+		Handle("/api/subjects", handler.NewCreateSubjectHandler(sys)).
 		Methods(http.MethodPost)
 
 	return router

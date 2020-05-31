@@ -10,16 +10,16 @@ import (
 	"github.com/antonio-muniz/alph/cmd/alph/internal/storage"
 	"github.com/antonio-muniz/alph/pkg/jwt"
 	"github.com/antonio-muniz/alph/pkg/password"
+	"github.com/antonio-muniz/alph/pkg/system"
 	"github.com/pkg/errors"
-	"github.com/sarulabs/di"
 )
 
 var (
 	ErrIncorrectCredentials = errors.New("Incorrect credentials")
 )
 
-func Authenticate(ctx context.Context, components di.Container, request request.Authenticate) (response.Authenticate, error) {
-	database := components.Get("database").(storage.Database)
+func Authenticate(ctx context.Context, sys system.System, request request.Authenticate) (response.Authenticate, error) {
+	database := sys.Get("database").(storage.Database)
 	subject, err := database.GetSubject(ctx, request.SubjectID)
 	switch err {
 	case nil:
@@ -49,7 +49,7 @@ func Authenticate(ctx context.Context, components di.Container, request request.
 			Subject:        request.SubjectID,
 		},
 	}
-	config := components.Get("config").(config.Config)
+	config := sys.Get("config").(config.Config)
 	accessToken, err := jwt.Pack(token, jwt.PackSettings{
 		SignatureKey:  config.JWTSignatureKey,
 		EncryptionKey: config.JWTEncryptionPublicKey,

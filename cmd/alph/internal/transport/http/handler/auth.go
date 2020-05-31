@@ -7,15 +7,15 @@ import (
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/controller"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
-	"github.com/sarulabs/di"
+	"github.com/antonio-muniz/alph/pkg/system"
 )
 
 type authenticateHandler struct {
-	components di.Container
+	system system.System
 }
 
-func NewAuthenticateHandler(components di.Container) http.Handler {
-	return authenticateHandler{components: components}
+func NewAuthenticateHandler(sys system.System) http.Handler {
+	return authenticateHandler{system: sys}
 }
 
 func (h authenticateHandler) ServeHTTP(httpResponse http.ResponseWriter, httpRequest *http.Request) {
@@ -26,7 +26,7 @@ func (h authenticateHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReq
 		return
 	}
 	ctx := httpRequest.Context()
-	response, err := controller.Authenticate(ctx, h.components, request)
+	response, err := controller.Authenticate(ctx, h.system, request)
 	switch err {
 	case nil:
 		responseBody, err := json.Marshal(response)

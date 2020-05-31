@@ -7,10 +7,10 @@ import (
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/storage"
 	"github.com/antonio-muniz/alph/pkg/password"
-	"github.com/sarulabs/di"
+	"github.com/antonio-muniz/alph/pkg/system"
 )
 
-func CreateSubject(ctx context.Context, components di.Container, request request.CreateSubject) error {
+func CreateSubject(ctx context.Context, sys system.System, request request.CreateSubject) error {
 	hashedPassword, err := password.Hash(request.Password)
 	if err != nil {
 		return err
@@ -19,7 +19,7 @@ func CreateSubject(ctx context.Context, components di.Container, request request
 		ID:             request.SubjectID,
 		HashedPassword: hashedPassword,
 	}
-	database := components.Get("database").(storage.Database)
+	database := sys.Get("database").(storage.Database)
 	err = database.CreateSubject(ctx, subject)
 	if err != nil {
 		return err
