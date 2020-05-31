@@ -14,7 +14,7 @@ type passwordAuthHandler struct {
 	system system.System
 }
 
-func NewPasswordAuthHandler(sys system.System) http.Handler {
+func PasswordAuthHandler(sys system.System) http.Handler {
 	return passwordAuthHandler{system: sys}
 }
 

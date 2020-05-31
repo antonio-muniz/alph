@@ -10,7 +10,7 @@ import (
 	"github.com/antonio-muniz/alph/pkg/system"
 )
 
-func CreateUser(ctx context.Context, sys system.System, request request.CreateUser) error {
+func CreateUser(ctx context.Context, sys system.System, request request.NewUser) error {
 	hashedPassword, err := password.Hash(request.Password)
 	if err != nil {
 		return err

@@ -19,12 +19,12 @@ import (
 func TestCreateUser(t *testing.T) {
 	scenarios := []struct {
 		description        string
-		request            request.CreateUser
+		request            request.NewUser
 		expectedStatusCode int
 	}{
 		{
 			description: "creates_a_valid_user",
-			request: request.CreateUser{
+			request: request.NewUser{
 				Username: "new.user@example.org",
 				Password: "hakunamatata",
 			},

@@ -15,12 +15,12 @@ type createUserHandler struct {
 	system system.System
 }
 
-func NewCreateUserHandler(sys system.System) http.Handler {
+func NewUserHandler(sys system.System) http.Handler {
 	return createUserHandler{system: sys}
 }
 
 func (h createUserHandler) ServeHTTP(httpResponse http.ResponseWriter, httpRequest *http.Request) {
-	var request request.CreateUser
+	var request request.NewUser
 	err := json.NewDecoder(httpRequest.Body).Decode(&request)
 	if err != nil {
 		httpResponse.WriteHeader(http.StatusBadRequest)
