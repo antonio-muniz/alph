@@ -75,11 +75,12 @@ func TestAuth(t *testing.T) {
 			requestBody, err := json.Marshal(scenario.request)
 			require.NoError(t, err)
 			requestBodyReader := bytes.NewReader(requestBody)
-			request, err := nethttp.NewRequest(nethttp.MethodPost, "/api/auth", requestBodyReader)
+			request, err := nethttp.NewRequest(nethttp.MethodPost, "/api/auth/password", requestBodyReader)
 			request.Header.Set("Content-Type", "application/json")
 			response := httptest.NewRecorder()
 			router.ServeHTTP(response, request)
 			require.Equal(t, scenario.expectedStatusCode, response.Code)
+			require.Equal(t, "application/json", response.Header().Get("Content-Type"))
 		})
 	}
 }
