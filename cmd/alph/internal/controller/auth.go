@@ -35,6 +35,12 @@ func PasswordAuth(ctx context.Context, sys system.System, request request.Passwo
 	if !passwordCorrect {
 		return response.PasswordAuth{}, ErrIncorrectCredentials
 	}
+	if request.ClientID != "the-client" {
+		return response.PasswordAuth{}, ErrIncorrectCredentials
+	}
+	if request.ClientSecret != "the-client-is-scared-of-the-dark" {
+		return response.PasswordAuth{}, ErrIncorrectCredentials
+	}
 	now := time.Now()
 	token := jwt.Token{
 		Header: jwt.Header{
