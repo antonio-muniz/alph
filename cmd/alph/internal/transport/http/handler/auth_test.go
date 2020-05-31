@@ -30,8 +30,8 @@ func TestAuth(t *testing.T) {
 			correctSubjectID: "someone@example.org",
 			correctPassword:  "123456",
 			request: request.Authenticate{
-				SubjectID: "someone@example.org",
-				Password:  "123456",
+				Username: "someone@example.org",
+				Password: "123456",
 			},
 			expectedStatusCode: nethttp.StatusOK,
 		},
@@ -40,8 +40,8 @@ func TestAuth(t *testing.T) {
 			correctSubjectID: "someone@example.org",
 			correctPassword:  "123456",
 			request: request.Authenticate{
-				SubjectID: "someone@example.org",
-				Password:  "654321",
+				Username: "someone@example.org",
+				Password: "654321",
 			},
 			expectedStatusCode: nethttp.StatusForbidden,
 		},
@@ -50,8 +50,8 @@ func TestAuth(t *testing.T) {
 			correctSubjectID: "someone@example.org",
 			correctPassword:  "123456",
 			request: request.Authenticate{
-				SubjectID: "someone@example.org",
-				Password:  "654321",
+				Username: "someone@example.org",
+				Password: "654321",
 			},
 			expectedStatusCode: nethttp.StatusForbidden,
 		},

@@ -20,7 +20,7 @@ var (
 
 func Authenticate(ctx context.Context, sys system.System, request request.Authenticate) (response.Authenticate, error) {
 	database := sys.Get("database").(storage.Database)
-	subject, err := database.GetSubject(ctx, request.SubjectID)
+	subject, err := database.GetSubject(ctx, request.Username)
 	switch err {
 	case nil:
 	case storage.ErrSubjectNotFound:
@@ -46,7 +46,7 @@ func Authenticate(ctx context.Context, sys system.System, request request.Authen
 			ExpirationTime: jwt.Timestamp(now.Add(30 * time.Minute)),
 			IssuedAt:       jwt.Timestamp(now),
 			Issuer:         "alph",
-			Subject:        request.SubjectID,
+			Subject:        request.Username,
 		},
 	}
 	config := sys.Get("config").(config.Config)
