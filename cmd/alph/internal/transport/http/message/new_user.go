@@ -1,6 +1,6 @@
-package request
+package message
 
-type NewUser struct {
+type NewUserRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }

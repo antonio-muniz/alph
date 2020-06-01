@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/message"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/storage"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http"
 	"github.com/antonio-muniz/alph/pkg/password"
@@ -19,12 +19,12 @@ import (
 func TestCreateUser(t *testing.T) {
 	scenarios := []struct {
 		description        string
-		request            request.NewUser
+		request            message.NewUserRequest
 		expectedStatusCode int
 	}{
 		{
 			description: "creates_a_valid_user",
-			request: request.NewUser{
+			request: message.NewUserRequest{
 				Username: "new.user@example.org",
 				Password: "hakunamatata",
 			},

@@ -5,9 +5,8 @@ import (
 	"time"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/config"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/model/response"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/storage"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/message"
 	"github.com/antonio-muniz/alph/pkg/jwt"
 	"github.com/antonio-muniz/alph/pkg/password"
 	"github.com/antonio-muniz/alph/pkg/system"
@@ -18,28 +17,28 @@ var (
 	ErrIncorrectCredentials = errors.New("Incorrect credentials")
 )
 
-func PasswordAuth(ctx context.Context, sys system.System, request request.PasswordAuth) (response.PasswordAuth, error) {
+func PasswordAuth(ctx context.Context, sys system.System, request message.PasswordAuthRequest) (message.PasswordAuthResponse, error) {
 	database := sys.Get("database").(storage.Database)
 	user, err := database.GetUser(ctx, request.Username)
 	switch err {
 	case nil:
 	case storage.ErrUserNotFound:
-		return response.PasswordAuth{}, ErrIncorrectCredentials
+		return message.PasswordAuthResponse{}, ErrIncorrectCredentials
 	default:
-		return response.PasswordAuth{}, errors.Wrap(err, "loading user")
+		return message.PasswordAuthResponse{}, errors.Wrap(err, "loading user")
 	}
 	passwordCorrect, err := password.Validate(request.Password, user.HashedPassword)
 	if err != nil {
-		return response.PasswordAuth{}, errors.Wrap(err, "validating password")
+		return message.PasswordAuthResponse{}, errors.Wrap(err, "validating password")
 	}
 	if !passwordCorrect {
-		return response.PasswordAuth{}, ErrIncorrectCredentials
+		return message.PasswordAuthResponse{}, ErrIncorrectCredentials
 	}
 	if request.ClientID != "the-client" {
-		return response.PasswordAuth{}, ErrIncorrectCredentials
+		return message.PasswordAuthResponse{}, ErrIncorrectCredentials
 	}
 	if request.ClientSecret != "the-client-is-scared-of-the-dark" {
-		return response.PasswordAuth{}, ErrIncorrectCredentials
+		return message.PasswordAuthResponse{}, ErrIncorrectCredentials
 	}
 	now := time.Now()
 	token := jwt.Token{
@@ -61,7 +60,7 @@ func PasswordAuth(ctx context.Context, sys system.System, request request.Passwo
 		EncryptionKey: config.JWTEncryptionPublicKey,
 	})
 
-	authResponse := response.PasswordAuth{AccessToken: accessToken}
+	authResponse := message.PasswordAuthResponse{AccessToken: accessToken}
 
 	return authResponse, nil
 }

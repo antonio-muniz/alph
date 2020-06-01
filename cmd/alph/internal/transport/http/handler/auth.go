@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/controller"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/message"
 	"github.com/antonio-muniz/alph/pkg/system"
 )
 
@@ -19,7 +19,7 @@ func PasswordAuthHandler(sys system.System) http.Handler {
 }
 
 func (h passwordAuthHandler) ServeHTTP(httpResponse http.ResponseWriter, httpRequest *http.Request) {
-	var request request.PasswordAuth
+	var request message.PasswordAuthRequest
 	err := json.NewDecoder(httpRequest.Body).Decode(&request)
 	if err != nil {
 		httpResponse.WriteHeader(http.StatusBadRequest)

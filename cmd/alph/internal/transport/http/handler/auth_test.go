@@ -10,7 +10,7 @@ import (
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/message"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/storage"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http"
 	"github.com/antonio-muniz/alph/pkg/password"
@@ -24,7 +24,7 @@ func TestAuth(t *testing.T) {
 		correctPassword     string
 		correctClientID     string
 		correctClientSecret string
-		request             request.PasswordAuth
+		request             message.PasswordAuthRequest
 		expectedStatusCode  int
 	}{
 		{
@@ -33,7 +33,7 @@ func TestAuth(t *testing.T) {
 			correctPassword:     "123456",
 			correctClientID:     "the-client",
 			correctClientSecret: "the-client-is-scared-of-the-dark",
-			request: request.PasswordAuth{
+			request: message.PasswordAuthRequest{
 				Username:     "someone@example.org",
 				Password:     "123456",
 				ClientID:     "the-client",
@@ -47,7 +47,7 @@ func TestAuth(t *testing.T) {
 			correctPassword:     "123456",
 			correctClientID:     "the-client",
 			correctClientSecret: "the-client-is-scared-of-the-dark",
-			request: request.PasswordAuth{
+			request: message.PasswordAuthRequest{
 				Username:     "someone.else@example.org",
 				Password:     "123456",
 				ClientID:     "the-client",
@@ -61,7 +61,7 @@ func TestAuth(t *testing.T) {
 			correctPassword:     "123456",
 			correctClientID:     "the-client",
 			correctClientSecret: "the-client-is-scared-of-the-dark",
-			request: request.PasswordAuth{
+			request: message.PasswordAuthRequest{
 				Username:     "someone@example.org",
 				Password:     "654321",
 				ClientID:     "the-client",
@@ -75,7 +75,7 @@ func TestAuth(t *testing.T) {
 			correctPassword:     "123456",
 			correctClientID:     "the-client",
 			correctClientSecret: "the-client-is-scared-of-the-dark",
-			request: request.PasswordAuth{
+			request: message.PasswordAuthRequest{
 				Username:     "someone@example.org",
 				Password:     "123456",
 				ClientID:     "the-client-no-one-has-ever-heard-of",
@@ -89,7 +89,7 @@ func TestAuth(t *testing.T) {
 			correctPassword:     "123456",
 			correctClientID:     "the-client",
 			correctClientSecret: "the-client-is-scared-of-the-dark",
-			request: request.PasswordAuth{
+			request: message.PasswordAuthRequest{
 				Username:     "someone@example.org",
 				Password:     "123456",
 				ClientID:     "the-client",

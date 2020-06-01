@@ -8,7 +8,7 @@ import (
 	"github.com/antonio-muniz/alph/cmd/alph/internal/controller"
 	"github.com/antonio-muniz/alph/pkg/system"
 
-	"github.com/antonio-muniz/alph/cmd/alph/internal/model/request"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/message"
 )
 
 type createUserHandler struct {
@@ -20,7 +20,7 @@ func NewUserHandler(sys system.System) http.Handler {
 }
 
 func (h createUserHandler) ServeHTTP(httpResponse http.ResponseWriter, httpRequest *http.Request) {
-	var request request.NewUser
+	var request message.NewUserRequest
 	err := json.NewDecoder(httpRequest.Body).Decode(&request)
 	if err != nil {
 		httpResponse.WriteHeader(http.StatusBadRequest)
