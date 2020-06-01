@@ -1,10 +1,10 @@
 package message
 
 type PasswordAuthRequest struct {
-	Username     string `json:"username"`
-	Password     string `json:"password"`
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
+	Username     string `json:"username" validate:"required"`
+	Password     string `json:"password" validate:"required"`
+	ClientID     string `json:"client_id" validate:"required"`
+	ClientSecret string `json:"client_secret" validate:"required"`
 }
 
 type PasswordAuthResponse struct {

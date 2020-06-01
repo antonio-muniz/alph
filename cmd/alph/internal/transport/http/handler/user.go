@@ -27,9 +27,15 @@ func (h createUserHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReque
 		httpResponse.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	validationErrors := validator.New().Validate(request)
+	validator := validator.New(validator.ErrorFieldFromJSONTag())
+	validationResult, err := validator.Validate(request)
 	if err != nil {
-		responseBody, err := json.Marshal(validationErrors)
+		fmt.Println(err.Error())
+		httpResponse.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if validationResult.Invalid() {
+		responseBody, err := json.Marshal(validationResult)
 		if err != nil {
 			fmt.Println(err.Error())
 			httpResponse.WriteHeader(http.StatusInternalServerError)
@@ -37,6 +43,7 @@ func (h createUserHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReque
 		}
 		httpResponse.WriteHeader(http.StatusBadRequest)
 		httpResponse.Write(responseBody)
+		return
 	}
 	ctx := httpRequest.Context()
 	err = controller.CreateUser(ctx, h.system, request)
