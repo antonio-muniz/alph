@@ -8,6 +8,7 @@ import (
 	"github.com/antonio-muniz/alph/cmd/alph/internal/controller"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/message"
 	"github.com/antonio-muniz/alph/pkg/system"
+	"github.com/antonio-muniz/alph/pkg/validator"
 )
 
 type passwordAuthHandler struct {
@@ -24,6 +25,17 @@ func (h passwordAuthHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReq
 	if err != nil {
 		httpResponse.WriteHeader(http.StatusBadRequest)
 		return
+	}
+	validationErrors := validator.New().Validate(request)
+	if err != nil {
+		responseBody, err := json.Marshal(validationErrors)
+		if err != nil {
+			fmt.Println(err.Error())
+			httpResponse.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		httpResponse.WriteHeader(http.StatusBadRequest)
+		httpResponse.Write(responseBody)
 	}
 	ctx := httpRequest.Context()
 	response, err := controller.PasswordAuth(ctx, h.system, request)
