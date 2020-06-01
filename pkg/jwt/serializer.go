@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Serialize(token Token) (string, error) {
+func Serialize(token OldToken) (string, error) {
 	serializedHeader, err := serializeHeader(token.Header)
 	if err != nil {
 		return "", err
@@ -21,19 +21,19 @@ func Serialize(token Token) (string, error) {
 	return fmt.Sprintf("%s.%s", serializedHeader, serializedPayload), nil
 }
 
-func Deserialize(serializedToken string) (Token, error) {
+func Deserialize(serializedToken string) (OldToken, error) {
 	tokenParts := strings.SplitN(serializedToken, ".", 2)
 	serializedHeader := tokenParts[0]
 	header, err := deserializeHeader(serializedHeader)
 	if err != nil {
-		return Token{}, err
+		return OldToken{}, err
 	}
 	serializedPayload := tokenParts[1]
 	payload, err := deserializePayload(serializedPayload)
 	if err != nil {
-		return Token{}, err
+		return OldToken{}, err
 	}
-	token := Token{
+	token := OldToken{
 		Header:  header,
 		Payload: payload,
 	}
@@ -62,7 +62,7 @@ func deserializeHeader(serializedHeader string) (Header, error) {
 	return header, nil
 }
 
-func serializePayload(payload Payload) (string, error) {
+func serializePayload(payload Token) (string, error) {
 	payloadJSON, err := json.Marshal(payload)
 	if err != nil {
 		return "", errors.Wrap(err, "serializing token payload")
@@ -71,16 +71,16 @@ func serializePayload(payload Payload) (string, error) {
 	return encodedPayload, nil
 }
 
-func deserializePayload(serializedPayload string) (Payload, error) {
+func deserializePayload(serializedPayload string) (Token, error) {
 	fmt.Println(serializedPayload)
 	payloadJSON, err := base64.RawURLEncoding.DecodeString(serializedPayload)
 	if err != nil {
-		return Payload{}, errors.Wrap(err, "decoding token payload")
+		return Token{}, errors.Wrap(err, "decoding token payload")
 	}
-	var payload Payload
+	var payload Token
 	err = json.Unmarshal(payloadJSON, &payload)
 	if err != nil {
-		return Payload{}, errors.Wrap(err, "deserializing token payload")
+		return Token{}, errors.Wrap(err, "deserializing token payload")
 	}
 	return payload, nil
 }

@@ -41,12 +41,12 @@ func PasswordAuth(ctx context.Context, sys system.System, request message.Passwo
 		return message.PasswordAuthResponse{}, ErrIncorrectCredentials
 	}
 	now := time.Now()
-	token := jwt.Token{
+	token := jwt.OldToken{
 		Header: jwt.Header{
 			SignatureAlgorithm: "HS256",
 			TokenType:          "JWT",
 		},
-		Payload: jwt.Payload{
+		Payload: jwt.Token{
 			Audience:       "example.org",
 			ExpirationTime: jwt.Timestamp(now.Add(30 * time.Minute)),
 			IssuedAt:       jwt.Timestamp(now),

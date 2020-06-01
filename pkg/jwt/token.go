@@ -1,6 +1,6 @@
 package jwt
 
-type Token struct {
+type OldToken struct {
 	Header  Header
-	Payload Payload
+	Payload Token
 }

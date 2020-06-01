@@ -12,19 +12,19 @@ import (
 func TestPackUnpack(t *testing.T) {
 	scenarios := []struct {
 		description   string
-		token         jwt.Token
+		token         jwt.OldToken
 		signatureKey  string
 		encryptionKey string
 		decryptionKey string
 	}{
 		{
 			description: "packs_and_unpacks_a_token",
-			token: jwt.Token{
+			token: jwt.OldToken{
 				Header: jwt.Header{
 					SignatureAlgorithm: "HS256",
 					TokenType:          "JWT",
 				},
-				Payload: jwt.Payload{
+				Payload: jwt.Token{
 					Issuer:   "alph",
 					Audience: "example.org",
 					Subject:  "someone@example.org",

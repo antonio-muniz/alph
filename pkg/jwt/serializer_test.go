@@ -15,18 +15,18 @@ import (
 func TestSerialize(t *testing.T) {
 	scenarios := []struct {
 		description     string
-		token           jwt.Token
+		token           jwt.OldToken
 		expectedHeader  map[string]interface{}
 		expectedPayload map[string]interface{}
 	}{
 		{
 			description: "serializes_a_token_to_string",
-			token: jwt.Token{
+			token: jwt.OldToken{
 				Header: jwt.Header{
 					SignatureAlgorithm: "HS256",
 					TokenType:          "JWT",
 				},
-				Payload: jwt.Payload{
+				Payload: jwt.Token{
 					Issuer:   "alph",
 					Audience: "example.org",
 					Subject:  "someone@example.org",

@@ -1,6 +1,6 @@
 package jwt
 
-type Payload struct {
+type Token struct {
 	Issuer         string    `json:"iss"`
 	Subject        string    `json:"sub"`
 	Audience       string    `json:"aud"`
