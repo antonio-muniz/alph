@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/message"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/storage"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/message"
 	"github.com/antonio-muniz/alph/pkg/password"
 	"github.com/antonio-muniz/alph/pkg/system"
 )
