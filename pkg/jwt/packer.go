@@ -12,7 +12,7 @@ type UnpackSettings struct {
 	DecryptionKey string
 }
 
-func Pack(token OldToken, settings PackSettings) (string, error) {
+func Pack(token Token, settings PackSettings) (string, error) {
 	encodedToken, err := Serialize(token)
 	if err != nil {
 		return "", err
@@ -28,20 +28,20 @@ func Pack(token OldToken, settings PackSettings) (string, error) {
 	return encryptedToken, nil
 }
 
-func Unpack(packedToken string, settings UnpackSettings) (OldToken, error) {
+func Unpack(packedToken string, settings UnpackSettings) (Token, error) {
 	decryptedToken, err := Decrypt(packedToken, settings.DecryptionKey)
 	if err != nil {
-		return OldToken{}, err
+		return Token{}, err
 	}
 	err = CheckSignature(decryptedToken, settings.SignatureKey)
 	if err != nil {
-		return OldToken{}, err
+		return Token{}, err
 	}
 	separationIndex := strings.LastIndex(decryptedToken, ".")
 	unsignedToken := decryptedToken[:separationIndex]
 	token, err := Deserialize(unsignedToken)
 	if err != nil {
-		return OldToken{}, err
+		return Token{}, err
 	}
 	return token, nil
 }

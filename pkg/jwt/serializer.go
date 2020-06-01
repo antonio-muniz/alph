@@ -9,39 +9,38 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Serialize(token OldToken) (string, error) {
-	serializedHeader, err := serializeHeader(token.Header)
+func Serialize(token Token) (string, error) {
+	serializedHeader, err := serializeHeader()
 	if err != nil {
 		return "", err
 	}
-	serializedPayload, err := serializePayload(token.Payload)
+	serializedToken, err := serializeToken(token)
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s.%s", serializedHeader, serializedPayload), nil
+	return fmt.Sprintf("%s.%s", serializedHeader, serializedToken), nil
 }
 
-func Deserialize(serializedToken string) (OldToken, error) {
+func Deserialize(serializedToken string) (Token, error) {
 	tokenParts := strings.SplitN(serializedToken, ".", 2)
 	serializedHeader := tokenParts[0]
-	header, err := deserializeHeader(serializedHeader)
+	_, err := deserializeHeader(serializedHeader)
 	if err != nil {
-		return OldToken{}, err
+		return Token{}, err
 	}
 	serializedPayload := tokenParts[1]
-	payload, err := deserializePayload(serializedPayload)
+	token, err := deserializeToken(serializedPayload)
 	if err != nil {
-		return OldToken{}, err
-	}
-	token := OldToken{
-		Header:  header,
-		Payload: payload,
+		return Token{}, err
 	}
 	return token, nil
 }
 
-func serializeHeader(header Header) (string, error) {
-	headerJSON, err := json.Marshal(header)
+func serializeHeader() (string, error) {
+	headerJSON, err := json.Marshal(Header{
+		SignatureAlgorithm: "HS256",
+		TokenType:          "JWT",
+	})
 	if err != nil {
 		return "", errors.Wrap(err, "serializing token header")
 	}
@@ -62,7 +61,7 @@ func deserializeHeader(serializedHeader string) (Header, error) {
 	return header, nil
 }
 
-func serializePayload(payload Token) (string, error) {
+func serializeToken(payload Token) (string, error) {
 	payloadJSON, err := json.Marshal(payload)
 	if err != nil {
 		return "", errors.Wrap(err, "serializing token payload")
@@ -71,9 +70,8 @@ func serializePayload(payload Token) (string, error) {
 	return encodedPayload, nil
 }
 
-func deserializePayload(serializedPayload string) (Token, error) {
-	fmt.Println(serializedPayload)
-	payloadJSON, err := base64.RawURLEncoding.DecodeString(serializedPayload)
+func deserializeToken(serializedToken string) (Token, error) {
+	payloadJSON, err := base64.RawURLEncoding.DecodeString(serializedToken)
 	if err != nil {
 		return Token{}, errors.Wrap(err, "decoding token payload")
 	}

@@ -12,29 +12,23 @@ import (
 func TestPackUnpack(t *testing.T) {
 	scenarios := []struct {
 		description   string
-		token         jwt.OldToken
+		token         jwt.Token
 		signatureKey  string
 		encryptionKey string
 		decryptionKey string
 	}{
 		{
 			description: "packs_and_unpacks_a_token",
-			token: jwt.OldToken{
-				Header: jwt.Header{
-					SignatureAlgorithm: "HS256",
-					TokenType:          "JWT",
-				},
-				Payload: jwt.Token{
-					Issuer:   "alph",
-					Audience: "example.org",
-					Subject:  "someone@example.org",
-					IssuedAt: jwt.Timestamp(
-						time.Date(2020, time.May, 24, 20, 05, 37, 0, time.UTC),
-					),
-					ExpirationTime: jwt.Timestamp(
-						time.Date(2020, time.May, 24, 20, 35, 37, 0, time.UTC),
-					),
-				},
+			token: jwt.Token{
+				Issuer:   "alph",
+				Audience: "example.org",
+				Subject:  "someone@example.org",
+				IssuedAt: jwt.Timestamp(
+					time.Date(2020, time.May, 24, 20, 05, 37, 0, time.UTC),
+				),
+				ExpirationTime: jwt.Timestamp(
+					time.Date(2020, time.May, 24, 20, 35, 37, 0, time.UTC),
+				),
 			},
 			signatureKey:  "zLcwW6w2MEwS8RMzP71azVbQJyOK4fiV",
 			encryptionKey: fixtures.PublicKey(),
