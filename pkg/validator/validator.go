@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -24,12 +25,20 @@ func New(options ...Option) Validator {
 }
 
 func (v Validator) Validate(payload interface{}) error {
-	err := v.validate.Struct(payload)
+	err := ensurePayloadIsSupported(payload)
+	if err != nil {
+		return err
+	}
+	err = v.validate.Struct(payload)
 	switch typedErr := err.(type) {
 	case nil:
 		return nil
 	case validation.ValidationErrors:
-		return convertValidationErrors(typedErr)
+		errors, err := convertValidationErrors(typedErr)
+		if err != nil {
+			return err
+		}
+		return errors
 	default:
 		return errors.Wrap(err, "validating payload")
 	}
@@ -46,23 +55,85 @@ func ErrorFieldFromJSONTag() Option {
 	}
 }
 
-func convertValidationErrors(validationErrors validation.ValidationErrors) Errors {
+func convertValidationErrors(validationErrors validation.ValidationErrors) (Errors, error) {
 	var errors Errors
 	for _, validationError := range validationErrors {
-		errors = append(errors, Error{
-			Code:  errorCodeFromValidationTag(validationError.Tag()),
-			Field: validationError.Field(),
-			Value: validationError.Value(),
-		})
+		error := convertValidationError(validationError)
+		errors = append(errors, error)
 	}
-	return errors
+	return errors, nil
 }
 
-func errorCodeFromValidationTag(tag string) string {
+var convertionFunctions = map[string]func(validation.FieldError) Error{
+	"required": func(validationError validation.FieldError) Error {
+		return Error{
+			Code:  "MISSING",
+			Field: validationError.Field(),
+		}
+	},
+	"gte": func(validationError validation.FieldError) Error {
+		return Error{
+			Code:  "TOO_LOW",
+			Field: validationError.Field(),
+			Value: validationError.Value(),
+			Details: map[string]interface{}{
+				"minimum": validationError.Param(),
+			},
+		}
+	},
+}
+
+func convertValidationError(validationError validation.FieldError) Error {
+	var error Error
+	tag := validationError.ActualTag()
 	switch tag {
+	case "required":
+		error = Error{
+			Code:  "MISSING",
+			Field: validationError.Field(),
+		}
 	case "gte":
-		return "TOO_LOW"
+		error = Error{
+			Code:  "TOO_LOW",
+			Field: validationError.Field(),
+			Value: validationError.Value(),
+			Details: map[string]interface{}{
+				"minimum": validationError.Param(),
+			},
+		}
 	default:
-		return ""
+		panic(fmt.Sprintf("Unexpected validation tag '%s'", tag))
 	}
+	return error
+}
+
+func ensurePayloadIsSupported(payload interface{}) error {
+	payloadType := reflect.TypeOf(payload)
+	if payloadType.Kind() != reflect.Struct {
+		return ErrNonStructPayload
+	}
+	fieldCount := payloadType.NumField()
+	for fieldIndex := 0; fieldIndex < fieldCount; fieldIndex++ {
+		field := payloadType.Field(fieldIndex)
+		validateTagValue := field.Tag.Get("validate")
+		validationRules := strings.Split(validateTagValue, ",")
+		for _, rule := range validationRules {
+			err := ensureRuleIsSupported(rule)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func ensureRuleIsSupported(rule string) error {
+	ruleParts := strings.SplitN(rule, "=", 2)
+	tag := ruleParts[0]
+	for supportedTag := range convertionFunctions {
+		if tag == supportedTag {
+			return nil
+		}
+	}
+	return ErrUnsupportedValidationTag{Tag: tag}
 }
