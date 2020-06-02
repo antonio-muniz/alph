@@ -24,6 +24,7 @@ func (h passwordAuthHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReq
 	err := json.NewDecoder(httpRequest.Body).Decode(&request)
 	if err != nil {
 		httpResponse.WriteHeader(http.StatusBadRequest)
+		httpResponse.Write([]byte("{}"))
 		return
 	}
 	validator := validator.New(validator.ErrorFieldFromJSONTag())
@@ -31,6 +32,7 @@ func (h passwordAuthHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReq
 	if err != nil {
 		fmt.Println(err.Error())
 		httpResponse.WriteHeader(http.StatusInternalServerError)
+		httpResponse.Write([]byte("{}"))
 		return
 	}
 	if validationResult.Invalid() {
@@ -38,6 +40,7 @@ func (h passwordAuthHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReq
 		if err != nil {
 			fmt.Println(err.Error())
 			httpResponse.WriteHeader(http.StatusInternalServerError)
+			httpResponse.Write([]byte("{}"))
 			return
 		}
 		httpResponse.WriteHeader(http.StatusBadRequest)
@@ -51,19 +54,23 @@ func (h passwordAuthHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReq
 		if err != nil {
 			fmt.Println(err.Error())
 			httpResponse.WriteHeader(http.StatusInternalServerError)
+			httpResponse.Write([]byte("{}"))
 			return
 		}
 		_, err = httpResponse.Write(responseBody)
 		if err != nil {
 			fmt.Println(err.Error())
 			httpResponse.WriteHeader(http.StatusInternalServerError)
+			httpResponse.Write([]byte("{}"))
 			return
 		}
 	case controller.ErrIncorrectCredentials:
 		httpResponse.WriteHeader(http.StatusForbidden)
+		httpResponse.Write([]byte("{}"))
 	default:
 		fmt.Println(err.Error())
 		httpResponse.WriteHeader(http.StatusInternalServerError)
+		httpResponse.Write([]byte("{}"))
 		return
 	}
 }

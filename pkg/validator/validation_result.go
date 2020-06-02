@@ -1,7 +1,7 @@
 package validator
 
 type Result struct {
-	Errors []Error `json:"errors"`
+	Errors []Error `json:"validation_errors"`
 }
 
 func (r Result) Invalid() bool {
