@@ -24,7 +24,10 @@ func (h passwordAuthHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReq
 	err := json.NewDecoder(httpRequest.Body).Decode(&request)
 	if err != nil {
 		httpResponse.WriteHeader(http.StatusBadRequest)
-		httpResponse.Write([]byte("{}"))
+		_, err := httpResponse.Write([]byte("{}"))
+		if err != nil {
+			panic(err)
+		}
 		return
 	}
 	validator := validator.New(validator.ErrorFieldFromJSONTag())
@@ -32,7 +35,10 @@ func (h passwordAuthHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReq
 	if err != nil {
 		fmt.Println(err.Error())
 		httpResponse.WriteHeader(http.StatusInternalServerError)
-		httpResponse.Write([]byte("{}"))
+		_, err := httpResponse.Write([]byte("{}"))
+		if err != nil {
+			panic(err)
+		}
 		return
 	}
 	if validationResult.Invalid() {
@@ -40,11 +46,17 @@ func (h passwordAuthHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReq
 		if err != nil {
 			fmt.Println(err.Error())
 			httpResponse.WriteHeader(http.StatusInternalServerError)
-			httpResponse.Write([]byte("{}"))
+			_, err := httpResponse.Write([]byte("{}"))
+			if err != nil {
+				panic(err)
+			}
 			return
 		}
 		httpResponse.WriteHeader(http.StatusBadRequest)
-		httpResponse.Write(responseBody)
+		_, err = httpResponse.Write(responseBody)
+		if err != nil {
+			panic(err)
+		}
 	}
 	ctx := httpRequest.Context()
 	response, err := controller.PasswordAuth(ctx, h.system, request)
@@ -54,23 +66,35 @@ func (h passwordAuthHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReq
 		if err != nil {
 			fmt.Println(err.Error())
 			httpResponse.WriteHeader(http.StatusInternalServerError)
-			httpResponse.Write([]byte("{}"))
+			_, err := httpResponse.Write([]byte("{}"))
+			if err != nil {
+				panic(err)
+			}
 			return
 		}
 		_, err = httpResponse.Write(responseBody)
 		if err != nil {
 			fmt.Println(err.Error())
 			httpResponse.WriteHeader(http.StatusInternalServerError)
-			httpResponse.Write([]byte("{}"))
+			_, err := httpResponse.Write([]byte("{}"))
+			if err != nil {
+				panic(err)
+			}
 			return
 		}
 	case controller.ErrIncorrectCredentials:
 		httpResponse.WriteHeader(http.StatusForbidden)
-		httpResponse.Write([]byte("{}"))
+		_, err := httpResponse.Write([]byte("{}"))
+		if err != nil {
+			panic(err)
+		}
 	default:
 		fmt.Println(err.Error())
 		httpResponse.WriteHeader(http.StatusInternalServerError)
-		httpResponse.Write([]byte("{}"))
+		_, err := httpResponse.Write([]byte("{}"))
+		if err != nil {
+			panic(err)
+		}
 		return
 	}
 }

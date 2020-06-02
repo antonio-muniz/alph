@@ -25,6 +25,10 @@ func (h createUserHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReque
 	err := json.NewDecoder(httpRequest.Body).Decode(&request)
 	if err != nil {
 		httpResponse.WriteHeader(http.StatusBadRequest)
+		_, err := httpResponse.Write([]byte("{}"))
+		if err != nil {
+			panic(err)
+		}
 		return
 	}
 	validator := validator.New(validator.ErrorFieldFromJSONTag())
@@ -32,6 +36,10 @@ func (h createUserHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReque
 	if err != nil {
 		fmt.Println(err.Error())
 		httpResponse.WriteHeader(http.StatusInternalServerError)
+		_, err := httpResponse.Write([]byte("{}"))
+		if err != nil {
+			panic(err)
+		}
 		return
 	}
 	if validationResult.Invalid() {
@@ -39,10 +47,17 @@ func (h createUserHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReque
 		if err != nil {
 			fmt.Println(err.Error())
 			httpResponse.WriteHeader(http.StatusInternalServerError)
+			_, err := httpResponse.Write([]byte("{}"))
+			if err != nil {
+				panic(err)
+			}
 			return
 		}
 		httpResponse.WriteHeader(http.StatusBadRequest)
-		httpResponse.Write(responseBody)
+		_, err = httpResponse.Write(responseBody)
+		if err != nil {
+			panic(err)
+		}
 		return
 	}
 	ctx := httpRequest.Context()
@@ -50,9 +65,17 @@ func (h createUserHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReque
 	switch err {
 	case nil:
 		httpResponse.WriteHeader(http.StatusCreated)
+		_, err := httpResponse.Write([]byte("{}"))
+		if err != nil {
+			panic(err)
+		}
 	default:
 		fmt.Println(err.Error())
 		httpResponse.WriteHeader(http.StatusInternalServerError)
+		_, err := httpResponse.Write([]byte("{}"))
+		if err != nil {
+			panic(err)
+		}
 		return
 	}
 }
