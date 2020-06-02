@@ -61,7 +61,7 @@ func (h createUserHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReque
 		return
 	}
 	ctx := httpRequest.Context()
-	err = controller.CreateUser(ctx, h.system, request)
+	err = controller.NewUser(ctx, h.system, request)
 	switch err {
 	case nil:
 		httpResponse.WriteHeader(http.StatusCreated)
