@@ -44,7 +44,6 @@ func PasswordAuth(ctx context.Context, sys system.System, request message.Passwo
 	token := jwt.Token{
 		Audience:       "example.org",
 		ExpirationTime: jwt.Timestamp(now.Add(30 * time.Minute)),
-		IssuedAt:       jwt.Timestamp(now),
 		Issuer:         "alph",
 		Subject:        request.Username,
 	}

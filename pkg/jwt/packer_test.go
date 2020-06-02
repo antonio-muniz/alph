@@ -23,9 +23,6 @@ func TestPackUnpack(t *testing.T) {
 				Issuer:   "alph",
 				Audience: "example.org",
 				Subject:  "someone@example.org",
-				IssuedAt: jwt.Timestamp(
-					time.Date(2020, time.May, 24, 20, 05, 37, 0, time.UTC),
-				),
 				ExpirationTime: jwt.Timestamp(
 					time.Date(2020, time.May, 24, 20, 35, 37, 0, time.UTC),
 				),
