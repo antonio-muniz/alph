@@ -7,6 +7,7 @@ import (
 	"github.com/antonio-muniz/alph/cmd/alph/internal/config"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/storage"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/message"
+	"github.com/antonio-muniz/alph/pkg/clock"
 	"github.com/antonio-muniz/alph/pkg/jwt"
 	"github.com/antonio-muniz/alph/pkg/password"
 	"github.com/antonio-muniz/alph/pkg/system"
@@ -40,7 +41,8 @@ func PasswordAuth(ctx context.Context, sys system.System, request message.Passwo
 	if request.ClientSecret != "the-client-is-scared-of-the-dark" {
 		return message.PasswordAuthResponse{}, ErrIncorrectCredentials
 	}
-	now := time.Now()
+	clock := sys.Get("clock").(clock.Clock)
+	now := clock.Now()
 	token := jwt.Token{
 		Audience:       "example.org",
 		ExpirationTime: jwt.Timestamp(now.Add(30 * time.Minute)),
