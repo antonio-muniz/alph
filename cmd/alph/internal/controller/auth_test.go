@@ -15,22 +15,20 @@ import (
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/message"
 	"github.com/antonio-muniz/alph/pkg/jwt"
 	"github.com/antonio-muniz/alph/pkg/password"
+	"github.com/antonio-muniz/alph/pkg/system"
 	fixtures "github.com/antonio-muniz/alph/test/fixtures/encryption"
 )
 
 func TestPasswordAuth(t *testing.T) {
 	scenarios := []struct {
-		description            string
-		correctUsername        string
-		correctPassword        string
-		correctClientID        string
-		correctClientSecret    string
-		request                message.PasswordAuthRequest
-		expectedError          error
-		expectedIssuer         string
-		expectedAudience       string
-		expectedSubject        string
-		expectedExpirationTime time.Time
+		description         string
+		correctUsername     string
+		correctPassword     string
+		correctClientID     string
+		correctClientSecret string
+		request             message.PasswordAuthRequest
+		expectedError       error
+		expectedToken       jwt.Token
 	}{
 		{
 			description:         "authenticates_user_with_correct_password_and_existing_client",
@@ -44,11 +42,13 @@ func TestPasswordAuth(t *testing.T) {
 				ClientID:     "the-client",
 				ClientSecret: "the-client-is-scared-of-the-dark",
 			},
-			expectedError:          nil,
-			expectedIssuer:         "alph",
-			expectedAudience:       "example.org",
-			expectedSubject:        "someone@example.org",
-			expectedExpirationTime: time.Now().Add(30 * time.Minute),
+			expectedError: nil,
+			expectedToken: jwt.Token{
+				Issuer:         "alph",
+				Audience:       "example.org",
+				Subject:        "someone@example.org",
+				ExpirationTime: jwt.Timestamp(time.Now().Add(30 * time.Minute)),
+			},
 		},
 		{
 			description:         "does_not_authenticate_unknown_user",
@@ -111,38 +111,65 @@ func TestPasswordAuth(t *testing.T) {
 	for _, scenario := range scenarios {
 		t.Run(scenario.description, func(t *testing.T) {
 			ctx := context.Background()
-			sys, err := internal.System()
-			require.NoError(t, err)
-			hashedCorrectPassword, err := password.Hash(scenario.correctPassword)
-			require.NoError(t, err)
-			database := sys.Get("database").(storage.Database)
+			sys := initializeSystem(t, ctx)
 			user := model.User{
 				Username:       scenario.correctUsername,
-				HashedPassword: hashedCorrectPassword,
+				HashedPassword: hashPassword(t, scenario.correctPassword),
 			}
-			err = database.CreateUser(ctx, user)
-			require.NoError(t, err)
+			createUser(t, ctx, sys, user)
 			response, err := controller.PasswordAuth(ctx, sys, scenario.request)
 			require.Equal(t, scenario.expectedError, err)
 			if scenario.expectedError == nil {
-				config := sys.Get("config").(config.Config)
-				unpackedToken, err := jwt.Unpack(
-					response.AccessToken,
-					jwt.UnpackSettings{
-						DecryptionKey: fixtures.PrivateKey(),
-						SignatureKey:  config.JWTSignatureKey,
-					},
-				)
-				require.NoError(t, err)
-				require.Equal(t, scenario.expectedIssuer, unpackedToken.Issuer)
-				require.Equal(t, scenario.expectedAudience, unpackedToken.Audience)
-				require.Equal(t, scenario.expectedSubject, unpackedToken.Subject)
-				require.WithinDuration(t,
-					scenario.expectedExpirationTime,
-					time.Time(unpackedToken.ExpirationTime),
-					1*time.Second,
-				)
+				verifyAccessTokenWithLooseExpiration(t, sys, scenario.expectedToken, response.AccessToken)
 			}
 		})
 	}
+}
+
+func initializeSystem(t *testing.T, ctx context.Context) system.System {
+	sys, err := internal.System(ctx)
+	require.NoError(t, err)
+	return sys
+}
+
+func hashPassword(t *testing.T, plainPassword string) string {
+	hashedPassword, err := password.Hash(plainPassword)
+	require.NoError(t, err)
+	return hashedPassword
+}
+
+func createUser(
+	t *testing.T,
+	ctx context.Context,
+	sys system.System,
+	user model.User,
+) {
+	database := sys.Get("database").(storage.Database)
+	err := database.CreateUser(ctx, user)
+	require.NoError(t, err)
+}
+
+func verifyAccessTokenWithLooseExpiration(
+	t *testing.T,
+	sys system.System,
+	expectedToken jwt.Token,
+	accessToken string,
+) {
+	config := sys.Get("config").(config.Config)
+	unpackedToken, err := jwt.Unpack(
+		accessToken,
+		jwt.UnpackSettings{
+			DecryptionKey: fixtures.PrivateKey(),
+			SignatureKey:  config.JWTSignatureKey,
+		},
+	)
+	require.NoError(t, err)
+	require.Equal(t, expectedToken.Issuer, unpackedToken.Issuer)
+	require.Equal(t, expectedToken.Audience, unpackedToken.Audience)
+	require.Equal(t, expectedToken.Subject, unpackedToken.Subject)
+	require.WithinDuration(t,
+		time.Time(expectedToken.ExpirationTime),
+		time.Time(unpackedToken.ExpirationTime),
+		1*time.Second,
+	)
 }

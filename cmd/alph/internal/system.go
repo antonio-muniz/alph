@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"context"
+
 	"github.com/antonio-muniz/alph/cmd/alph/internal/config"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/storage/memory"
 	"github.com/antonio-muniz/alph/pkg/system"
@@ -8,7 +10,7 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func System() (system.System, error) {
+func System(_ctx context.Context) (system.System, error) {
 	builder, err := di.NewBuilder()
 	if err != nil {
 		return system.System{}, errors.Wrap(err, "error building components")

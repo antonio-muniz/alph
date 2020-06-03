@@ -31,7 +31,7 @@ func TestNewUser(t *testing.T) {
 	for _, scenario := range scenarios {
 		t.Run(scenario.description, func(t *testing.T) {
 			ctx := context.Background()
-			sys, err := internal.System()
+			sys, err := internal.System(ctx)
 			require.NoError(t, err)
 			err = controller.NewUser(ctx, sys, scenario.request)
 			require.Equal(t, scenario.expectedError, err)

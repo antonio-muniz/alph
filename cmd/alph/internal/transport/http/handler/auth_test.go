@@ -87,7 +87,7 @@ func TestPasswordAuth(t *testing.T) {
 	for _, scenario := range scenarios {
 		t.Run(scenario.description, func(t *testing.T) {
 			ctx := context.Background()
-			sys, err := internal.System()
+			sys, err := internal.System(ctx)
 			require.NoError(t, err)
 			hashedCorrectPassword, err := password.Hash(scenario.correctPassword)
 			require.NoError(t, err)
@@ -103,6 +103,7 @@ func TestPasswordAuth(t *testing.T) {
 			require.NoError(t, err)
 			requestBodyReader := bytes.NewReader(requestBody)
 			request, err := nethttp.NewRequest(nethttp.MethodPost, "/api/auth/password", requestBodyReader)
+			require.NoError(t, err)
 			request.Header.Set("Content-Type", "application/json")
 			response := httptest.NewRecorder()
 			router.ServeHTTP(response, request)

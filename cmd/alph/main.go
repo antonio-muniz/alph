@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	nethttp "net/http"
 
@@ -9,7 +10,8 @@ import (
 )
 
 func main() {
-	sys, err := internal.System()
+	ctx := context.Background()
+	sys, err := internal.System(ctx)
 	if err != nil {
 		panic(err)
 	}

@@ -55,7 +55,7 @@ func TestNewUser(t *testing.T) {
 	for _, scenario := range scenarios {
 		t.Run(scenario.description, func(t *testing.T) {
 			ctx := context.Background()
-			sys, err := internal.System()
+			sys, err := internal.System(ctx)
 			require.NoError(t, err)
 			router := http.Router(sys)
 			requestBody, err := json.Marshal(scenario.requestBody)
