@@ -7,11 +7,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/antonio-muniz/alph/cmd/alph/internal"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/config"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/controller"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/storage"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/test/internalhelpers"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/message"
 	"github.com/antonio-muniz/alph/pkg/jwt"
 	"github.com/antonio-muniz/alph/pkg/password"
@@ -111,7 +111,7 @@ func TestPasswordAuth(t *testing.T) {
 	for _, scenario := range scenarios {
 		t.Run(scenario.description, func(t *testing.T) {
 			ctx := context.Background()
-			sys := initializeSystem(t, ctx)
+			sys := internalhelpers.InitializeSystem(t, ctx)
 			user := model.User{
 				Username:       scenario.correctUsername,
 				HashedPassword: hashPassword(t, scenario.correctPassword),
@@ -124,12 +124,6 @@ func TestPasswordAuth(t *testing.T) {
 			}
 		})
 	}
-}
-
-func initializeSystem(t *testing.T, ctx context.Context) system.System {
-	sys, err := internal.System(ctx)
-	require.NoError(t, err)
-	return sys
 }
 
 func hashPassword(t *testing.T, plainPassword string) string {
