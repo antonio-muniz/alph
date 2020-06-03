@@ -9,11 +9,9 @@ import (
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/controller"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/storage"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/test/internalhelpers"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/message"
 	"github.com/antonio-muniz/alph/pkg/jwt"
-	"github.com/antonio-muniz/alph/pkg/system"
 	"github.com/antonio-muniz/alph/test/helpers"
 )
 
@@ -114,7 +112,7 @@ func TestPasswordAuth(t *testing.T) {
 				Username:       scenario.correctUsername,
 				HashedPassword: helpers.HashPassword(t, scenario.correctPassword),
 			}
-			createUser(t, ctx, sys, user)
+			internalhelpers.CreateUser(t, ctx, sys, user)
 			response, err := controller.PasswordAuth(ctx, sys, scenario.request)
 			require.Equal(t, scenario.expectedError, err)
 			if scenario.expectedError == nil {
@@ -126,15 +124,4 @@ func TestPasswordAuth(t *testing.T) {
 			}
 		})
 	}
-}
-
-func createUser(
-	t *testing.T,
-	ctx context.Context,
-	sys system.System,
-	user model.User,
-) {
-	database := sys.Get("database").(storage.Database)
-	err := database.CreateUser(ctx, user)
-	require.NoError(t, err)
 }

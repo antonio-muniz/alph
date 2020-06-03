@@ -1,17 +1,14 @@
 package handler_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	nethttp "net/http"
-	"net/http/httptest"
 	"testing"
 
-	"github.com/antonio-muniz/alph/cmd/alph/internal"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/storage"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http"
-	"github.com/antonio-muniz/alph/pkg/password"
+	"github.com/antonio-muniz/alph/test/helpers"
+
+	"github.com/antonio-muniz/alph/cmd/alph/internal/test/internalhelpers"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -21,7 +18,6 @@ func TestNewUser(t *testing.T) {
 		requestBody          map[string]interface{}
 		expectedStatusCode   int
 		expectedResponseBody map[string]interface{}
-		userIsExpected       bool
 	}{
 		{
 			description: "responds_created_for_creating_a_valid_user",
@@ -31,18 +27,15 @@ func TestNewUser(t *testing.T) {
 			},
 			expectedStatusCode:   nethttp.StatusCreated,
 			expectedResponseBody: map[string]interface{}{},
-			userIsExpected:       true,
 		},
 		{
-			description:        "responds_bad_request_and_validation_errors_for_invalid_parameters",
-			requestBody:        map[string]interface{}{},
+			description: "responds_bad_request_and_validation_errors_for_invalid_parameters",
+			requestBody: map[string]interface{}{
+				"username": "new.user@example.org",
+			},
 			expectedStatusCode: nethttp.StatusBadRequest,
 			expectedResponseBody: map[string]interface{}{
 				"validation_errors": []interface{}{
-					map[string]interface{}{
-						"type":  "MISSING",
-						"field": "username",
-					},
 					map[string]interface{}{
 						"type":  "MISSING",
 						"field": "password",
@@ -55,28 +48,27 @@ func TestNewUser(t *testing.T) {
 	for _, scenario := range scenarios {
 		t.Run(scenario.description, func(t *testing.T) {
 			ctx := context.Background()
-			sys, err := internal.System(ctx)
-			require.NoError(t, err)
-			router := http.Router(sys)
-			requestBody, err := json.Marshal(scenario.requestBody)
-			require.NoError(t, err)
-			requestBodyReader := bytes.NewReader(requestBody)
-			request, err := nethttp.NewRequest(nethttp.MethodPost, "/api/users", requestBodyReader)
-			request.Header.Set("Content-Type", "application/json")
-			response := httptest.NewRecorder()
-			router.ServeHTTP(response, request)
+			sys := internalhelpers.InitializeSystem(t, ctx)
+			request := helpers.BuildHttpRequest(t,
+				nethttp.MethodPost,
+				"/api/users",
+				scenario.requestBody,
+			)
+			response := internalhelpers.ExecuteHttpRequest(t, sys, request)
 			require.Equal(t, scenario.expectedStatusCode, response.Code)
-			var responseBody map[string]interface{}
-			err = json.NewDecoder(response.Body).Decode(&responseBody)
-			require.NoError(t, err)
+			responseBody := helpers.DeserializeHttpResponseBody(t, response)
 			require.Equal(t, scenario.expectedResponseBody, responseBody)
-			if scenario.userIsExpected {
-				database := sys.Get("database").(storage.Database)
-				user, err := database.GetUser(ctx, scenario.requestBody["username"].(string))
-				require.NoError(t, err)
-				passwordMatch, err := password.Validate(scenario.requestBody["password"].(string), user.HashedPassword)
-				require.NoError(t, err)
-				require.True(t, passwordMatch)
+			expectedUsername := scenario.requestBody["username"].(string)
+			if scenario.expectedStatusCode == nethttp.StatusCreated {
+				expectedPassword := scenario.requestBody["password"].(string)
+				internalhelpers.VerifyUserExists(t,
+					ctx,
+					sys,
+					expectedUsername,
+					expectedPassword,
+				)
+			} else {
+				internalhelpers.VerifyUserDoesNotExist(t, ctx, sys, expectedUsername)
 			}
 		})
 	}

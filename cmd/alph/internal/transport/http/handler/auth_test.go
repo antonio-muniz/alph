@@ -1,19 +1,14 @@
 package handler_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	nethttp "net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/test/internalhelpers"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http"
 	"github.com/antonio-muniz/alph/pkg/jwt"
-	"github.com/antonio-muniz/alph/pkg/system"
 	"github.com/antonio-muniz/alph/test/helpers"
 	"github.com/stretchr/testify/require"
 )
@@ -100,14 +95,14 @@ func TestPasswordAuth(t *testing.T) {
 				HashedPassword: helpers.HashPassword(t, scenario.correctPassword),
 			}
 			internalhelpers.CreateUser(t, ctx, sys, user)
-			request := buildHttpRequest(t,
+			request := helpers.BuildHttpRequest(t,
 				nethttp.MethodPost,
 				"/api/auth/password",
 				scenario.requestBody,
 			)
-			response := executeHttpRequest(t, sys, request)
+			response := internalhelpers.ExecuteHttpRequest(t, sys, request)
 			require.Equal(t, scenario.expectedStatusCode, response.Code)
-			responseBody := deserializeHttpResponseBody(t, response)
+			responseBody := helpers.DeserializeHttpResponseBody(t, response)
 			if scenario.expectedStatusCode == nethttp.StatusOK {
 				accessToken := responseBody["access_token"].(string)
 				internalhelpers.VerifyAccessToken(t,
@@ -120,41 +115,4 @@ func TestPasswordAuth(t *testing.T) {
 			}
 		})
 	}
-}
-
-func buildHttpRequest(
-	t *testing.T,
-	method string,
-	uri string,
-	body interface{},
-) *nethttp.Request {
-	serializedBody, err := json.Marshal(body)
-	require.NoError(t, err)
-	bodyReader := bytes.NewReader(serializedBody)
-	request, err := nethttp.NewRequest(method, uri, bodyReader)
-	require.NoError(t, err)
-	request.Header.Set("Content-Type", "application/json")
-	return request
-}
-
-func executeHttpRequest(
-	t *testing.T,
-	sys system.System,
-	request *nethttp.Request,
-) *httptest.ResponseRecorder {
-	response := httptest.NewRecorder()
-	router := http.Router(sys)
-	router.ServeHTTP(response, request)
-	return response
-}
-
-func deserializeHttpResponseBody(
-	t *testing.T,
-	response *httptest.ResponseRecorder,
-) map[string]interface{} {
-	require.Equal(t, "application/json", response.Header().Get("Content-Type"))
-	var responseBody map[string]interface{}
-	err := json.NewDecoder(response.Body).Decode(&responseBody)
-	require.NoError(t, err)
-	return responseBody
 }
