@@ -29,7 +29,6 @@ func DeserializeHttpResponseBody(
 	t *testing.T,
 	response *httptest.ResponseRecorder,
 ) map[string]interface{} {
-	require.Equal(t, "application/json", response.Header().Get("Content-Type"))
 	var responseBody map[string]interface{}
 	err := json.NewDecoder(response.Body).Decode(&responseBody)
 	require.NoError(t, err)
