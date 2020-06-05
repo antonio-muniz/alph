@@ -2,11 +2,11 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/controller"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/message"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/respond"
 	"github.com/antonio-muniz/alph/pkg/system"
 	"github.com/antonio-muniz/alph/pkg/validator"
 )
@@ -23,78 +23,27 @@ func (h passwordAuthHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReq
 	var request message.PasswordAuthRequest
 	err := json.NewDecoder(httpRequest.Body).Decode(&request)
 	if err != nil {
-		httpResponse.WriteHeader(http.StatusBadRequest)
-		_, err := httpResponse.Write([]byte("{}"))
-		if err != nil {
-			panic(err)
-		}
+		respond.MalformedRequest(httpResponse)
 		return
 	}
 	validator := validator.New(validator.ErrorFieldFromJSONTag())
 	validationResult, err := validator.Validate(request)
 	if err != nil {
-		fmt.Println(err.Error())
-		httpResponse.WriteHeader(http.StatusInternalServerError)
-		_, err := httpResponse.Write([]byte("{}"))
-		if err != nil {
-			panic(err)
-		}
+		respond.InternalServerError(httpResponse)
 		return
 	}
 	if validationResult.Invalid() {
-		responseBody, err := json.Marshal(validationResult)
-		if err != nil {
-			fmt.Println(err.Error())
-			httpResponse.WriteHeader(http.StatusInternalServerError)
-			_, err := httpResponse.Write([]byte("{}"))
-			if err != nil {
-				panic(err)
-			}
-			return
-		}
-		httpResponse.WriteHeader(http.StatusBadRequest)
-		_, err = httpResponse.Write(responseBody)
-		if err != nil {
-			panic(err)
-		}
+		respond.InvalidRequestParameters(httpResponse, validationResult)
+		return
 	}
 	ctx := httpRequest.Context()
 	response, err := controller.PasswordAuth(ctx, h.system, request)
 	switch err {
 	case nil:
-		responseBody, err := json.Marshal(response)
-		if err != nil {
-			fmt.Println(err.Error())
-			httpResponse.WriteHeader(http.StatusInternalServerError)
-			_, err := httpResponse.Write([]byte("{}"))
-			if err != nil {
-				panic(err)
-			}
-			return
-		}
-		_, err = httpResponse.Write(responseBody)
-		if err != nil {
-			fmt.Println(err.Error())
-			httpResponse.WriteHeader(http.StatusInternalServerError)
-			_, err := httpResponse.Write([]byte("{}"))
-			if err != nil {
-				panic(err)
-			}
-			return
-		}
+		respond.OK(httpResponse, response)
 	case controller.ErrIncorrectCredentials:
-		httpResponse.WriteHeader(http.StatusForbidden)
-		_, err := httpResponse.Write([]byte("{}"))
-		if err != nil {
-			panic(err)
-		}
+		respond.Forbidden(httpResponse)
 	default:
-		fmt.Println(err.Error())
-		httpResponse.WriteHeader(http.StatusInternalServerError)
-		_, err := httpResponse.Write([]byte("{}"))
-		if err != nil {
-			panic(err)
-		}
-		return
+		respond.InternalServerError(httpResponse)
 	}
 }

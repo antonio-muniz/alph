@@ -58,7 +58,7 @@ func TestPasswordAuth(t *testing.T) {
 				"client_secret": "the-client-is-scared-of-the-dark",
 			},
 			expectedStatusCode:   nethttp.StatusForbidden,
-			expectedResponseBody: map[string]interface{}{},
+			expectedResponseBody: map[string]interface{}{"message": "forbidden"},
 		},
 		{
 			description:         "responds_bad_request_and_validation_errors_for_invalid_parameters",

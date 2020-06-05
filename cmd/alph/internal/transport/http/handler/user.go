@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/controller"
@@ -10,6 +9,7 @@ import (
 	"github.com/antonio-muniz/alph/pkg/validator"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/message"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/respond"
 )
 
 type createUserHandler struct {
@@ -24,58 +24,25 @@ func (h createUserHandler) ServeHTTP(httpResponse http.ResponseWriter, httpReque
 	var request message.NewUserRequest
 	err := json.NewDecoder(httpRequest.Body).Decode(&request)
 	if err != nil {
-		httpResponse.WriteHeader(http.StatusBadRequest)
-		_, err := httpResponse.Write([]byte("{}"))
-		if err != nil {
-			panic(err)
-		}
+		respond.MalformedRequest(httpResponse)
 		return
 	}
 	validator := validator.New(validator.ErrorFieldFromJSONTag())
 	validationResult, err := validator.Validate(request)
 	if err != nil {
-		fmt.Println(err.Error())
-		httpResponse.WriteHeader(http.StatusInternalServerError)
-		_, err := httpResponse.Write([]byte("{}"))
-		if err != nil {
-			panic(err)
-		}
+		respond.InternalServerError(httpResponse)
 		return
 	}
 	if validationResult.Invalid() {
-		responseBody, err := json.Marshal(validationResult)
-		if err != nil {
-			fmt.Println(err.Error())
-			httpResponse.WriteHeader(http.StatusInternalServerError)
-			_, err := httpResponse.Write([]byte("{}"))
-			if err != nil {
-				panic(err)
-			}
-			return
-		}
-		httpResponse.WriteHeader(http.StatusBadRequest)
-		_, err = httpResponse.Write(responseBody)
-		if err != nil {
-			panic(err)
-		}
+		respond.InvalidRequestParameters(httpResponse, validationResult)
 		return
 	}
 	ctx := httpRequest.Context()
 	err = controller.NewUser(ctx, h.system, request)
 	switch err {
 	case nil:
-		httpResponse.WriteHeader(http.StatusCreated)
-		_, err := httpResponse.Write([]byte("{}"))
-		if err != nil {
-			panic(err)
-		}
+		respond.Created(httpResponse, "<user-id>", message.NewUserResponse{})
 	default:
-		fmt.Println(err.Error())
-		httpResponse.WriteHeader(http.StatusInternalServerError)
-		_, err := httpResponse.Write([]byte("{}"))
-		if err != nil {
-			panic(err)
-		}
-		return
+		respond.InternalServerError(httpResponse)
 	}
 }
