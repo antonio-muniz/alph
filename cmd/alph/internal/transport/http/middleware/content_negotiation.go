@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"net/http"
+
+	"github.com/antonio-muniz/alph/pkg/respond"
 )
 
 type contentNegotiation struct {
@@ -16,7 +18,7 @@ func (m contentNegotiation) ServeHTTP(httpResponse http.ResponseWriter, httpRequ
 	httpResponse.Header().Set("Content-Type", "application/json")
 	requestContentType := httpRequest.Header.Get("Content-Type")
 	if requestContentType != "application/json" {
-		httpResponse.WriteHeader(http.StatusUnsupportedMediaType)
+		respond.UnsupportedContentType(httpResponse)
 		return
 	}
 	m.nextHandler.ServeHTTP(httpResponse, httpRequest)

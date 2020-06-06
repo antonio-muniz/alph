@@ -80,6 +80,16 @@ func TestForbidden(t *testing.T) {
 	require.Equal(t, map[string]interface{}{"message": "forbidden"}, responseBody)
 }
 
+func TestUnsupportedContentType(t *testing.T) {
+	httpResponse := httptest.NewRecorder()
+
+	respond.UnsupportedContentType(httpResponse)
+
+	require.Equal(t, http.StatusUnsupportedMediaType, httpResponse.Code)
+	responseBody := helpers.DeserializeHttpResponseBody(t, httpResponse)
+	require.Equal(t, map[string]interface{}{"message": "unsupported content type"}, responseBody)
+}
+
 func TestInternalServerError(t *testing.T) {
 	httpResponse := httptest.NewRecorder()
 

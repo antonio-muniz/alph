@@ -30,6 +30,11 @@ func Forbidden(response http.ResponseWriter) {
 	sendResponse(response, http.StatusForbidden, body)
 }
 
+func UnsupportedContentType(response http.ResponseWriter) {
+	body := []byte("{\"message\":\"unsupported content type\"}")
+	sendResponse(response, http.StatusUnsupportedMediaType, body)
+}
+
 func InternalServerError(response http.ResponseWriter) {
 	body := []byte("{\"message\":\"unexpected error\"}")
 	sendResponse(response, http.StatusInternalServerError, body)

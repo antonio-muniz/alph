@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"net/http"
+
+	"github.com/antonio-muniz/alph/pkg/respond"
 )
 
 type panicRecovery struct {
@@ -20,6 +22,6 @@ func (m panicRecovery) ServeHTTP(httpResponse http.ResponseWriter, httpRequest *
 func recoverFromPanic(httpResponse http.ResponseWriter) {
 	panicValue := recover()
 	if panicValue != nil {
-		httpResponse.WriteHeader(http.StatusInternalServerError)
+		respond.InternalServerError(httpResponse)
 	}
 }
