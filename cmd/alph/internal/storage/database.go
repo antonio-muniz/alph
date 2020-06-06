@@ -7,6 +7,7 @@ import (
 	"github.com/antonio-muniz/alph/cmd/alph/internal/model"
 )
 
+var ErrClientNotFound = errors.New("client not found")
 var ErrUserNotFound = errors.New("user not found")
 
 type Database interface {

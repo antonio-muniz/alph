@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/config"
+	"github.com/antonio-muniz/alph/cmd/alph/internal/model"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/storage"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/message"
 	"github.com/antonio-muniz/alph/pkg/clock"
@@ -19,8 +20,7 @@ var (
 )
 
 func PasswordAuth(ctx context.Context, sys system.System, request message.PasswordAuthRequest) (message.PasswordAuthResponse, error) {
-	database := sys.Get("database").(storage.Database)
-	user, err := database.GetUser(ctx, request.Username)
+	user, err := findUser(ctx, sys, request.Username)
 	switch err {
 	case nil:
 	case storage.ErrUserNotFound:
@@ -35,27 +35,65 @@ func PasswordAuth(ctx context.Context, sys system.System, request message.Passwo
 	if !passwordCorrect {
 		return message.PasswordAuthResponse{}, ErrIncorrectCredentials
 	}
-	if request.ClientID != "the-client" {
+	err = ensureClientExists(ctx, sys, request.ClientID, request.ClientSecret)
+	switch err {
+	case nil:
+	case storage.ErrClientNotFound:
 		return message.PasswordAuthResponse{}, ErrIncorrectCredentials
+	default:
+		return message.PasswordAuthResponse{}, errors.Wrap(err, "ensuring client exists")
 	}
-	if request.ClientSecret != "the-client-is-scared-of-the-dark" {
-		return message.PasswordAuthResponse{}, ErrIncorrectCredentials
+
+	accessToken, err := generateAccessToken(ctx, sys, request.Username)
+	if err != nil {
+		return message.PasswordAuthResponse{}, errors.Wrap(err, "generating access token")
 	}
+
+	authResponse := message.PasswordAuthResponse{AccessToken: accessToken}
+
+	return authResponse, nil
+}
+
+func findUser(ctx context.Context, sys system.System, username string) (model.User, error) {
+	database := sys.Get("database").(storage.Database)
+	user, err := database.GetUser(ctx, username)
+	if err != nil {
+		return model.User{}, err
+	}
+	return user, nil
+}
+
+func ensureClientExists(
+	ctx context.Context,
+	sys system.System,
+	clientID string,
+	clientSecret string,
+) error {
+	if clientID != "the-client" {
+		return storage.ErrClientNotFound
+	}
+	if clientSecret != "the-client-is-scared-of-the-dark" {
+		return storage.ErrClientNotFound
+	}
+	return nil
+}
+
+func generateAccessToken(ctx context.Context, sys system.System, username string) (string, error) {
 	clock := sys.Get("clock").(clock.Clock)
 	now := clock.Now()
 	token := jwt.Token{
 		Audience:       "example.org",
 		ExpirationTime: jwt.Timestamp(now.Add(30 * time.Minute)),
 		Issuer:         "alph",
-		Subject:        request.Username,
+		Subject:        username,
 	}
 	config := sys.Get("config").(config.Config)
 	accessToken, err := jwt.Pack(token, jwt.PackSettings{
 		SignatureKey:  config.JWTSignatureKey,
 		EncryptionKey: config.JWTEncryptionPublicKey,
 	})
-
-	authResponse := message.PasswordAuthResponse{AccessToken: accessToken}
-
-	return authResponse, nil
+	if err != nil {
+		return "", err
+	}
+	return accessToken, nil
 }

@@ -2,7 +2,7 @@ package config
 
 import "strings"
 
-func LoadConfiguration() Config {
+func Load() Config {
 	return Config{
 		JWTSignatureKey: "zLcwW6w2MEwS8RMzP71azVbQJyOK4fiV",
 		JWTEncryptionPublicKey: strings.Join(

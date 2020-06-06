@@ -21,7 +21,7 @@ func System(_ctx context.Context) (system.System, error) {
 		di.Def{
 			Name: "config",
 			Build: func(container di.Container) (interface{}, error) {
-				return config.LoadConfiguration(), nil
+				return config.Load(), nil
 			},
 		},
 		di.Def{

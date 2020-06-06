@@ -20,7 +20,7 @@ func InitializeSystem(t *testing.T, ctx context.Context) system.System {
 		di.Def{
 			Name: "config",
 			Build: func(container di.Container) (interface{}, error) {
-				return config.LoadConfiguration(), nil
+				return config.Load(), nil
 			},
 		},
 		di.Def{
