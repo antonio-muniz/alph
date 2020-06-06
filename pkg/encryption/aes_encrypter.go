@@ -21,14 +21,14 @@ func AESEncrypt(message string, encryptionKey string) (string, error) {
 	}
 	block, err := aes.NewCipher(encryptionKeyBytes)
 	if err != nil {
-		return "", errors.Wrap(err, "creating AES cipher block")
+		return "", errors.WithStack(err)
 	}
 	messageBytes := []byte(message)
 	encryptedMessageBytes := make([]byte, aes.BlockSize+len(messageBytes))
 	initVector := encryptedMessageBytes[:aes.BlockSize]
 	_, err = io.ReadFull(rand.Reader, initVector)
 	if err != nil {
-		return "", errors.Wrap(err, "generating initialization vector")
+		return "", errors.WithStack(err)
 	}
 	encrypter := cipher.NewCFBEncrypter(block, initVector)
 	encrypter.XORKeyStream(encryptedMessageBytes[aes.BlockSize:], messageBytes)
@@ -44,7 +44,7 @@ func AESDecrypt(encryptedMessage string, decryptionKey string) (string, error) {
 	}
 	block, err := aes.NewCipher(decryptionKeyBytes)
 	if err != nil {
-		return "", errors.Wrap(err, "creating AES cipher block")
+		return "", errors.WithStack(err)
 	}
 	encryptedMessageBytes, err := base64.RawURLEncoding.DecodeString(encryptedMessage)
 	if err != nil {

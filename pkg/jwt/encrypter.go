@@ -13,16 +13,16 @@ func Encrypt(signedToken string, encryptionKey string) (string, error) {
 	aesEncryptionKeyBytes := make([]byte, 32)
 	_, err := io.ReadFull(rand.Reader, aesEncryptionKeyBytes)
 	if err != nil {
-		return "", errors.Wrap(err, "error generating AES encryption key")
+		return "", errors.WithStack(err)
 	}
 	aesEncryptionKey := string(aesEncryptionKeyBytes)
 	aesEncryptedToken, err := encryption.AESEncrypt(signedToken, aesEncryptionKey)
 	if err != nil {
-		return "", errors.Wrap(err, "error AES encrypting the token")
+		return "", err
 	}
 	encryptedAESKey, err := encryption.RSAEncrypt(aesEncryptionKey, encryptionKey)
 	if err != nil {
-		return "", errors.Wrap(err, "error RSA encrypting the AES encryption key")
+		return "", err
 	}
 	encryptedToken := strings.Join([]string{aesEncryptedToken, encryptedAESKey}, ".")
 	return encryptedToken, nil
@@ -34,11 +34,11 @@ func Decrypt(encryptedToken string, decryptionKey string) (string, error) {
 	encryptedAESKey := encryptedTokenParts[1]
 	aesEncryptionKey, err := encryption.RSADecrypt(encryptedAESKey, decryptionKey)
 	if err != nil {
-		return "", errors.Wrap(err, "error RSA decrypting the AES encryption key")
+		return "", err
 	}
 	signedToken, err := encryption.AESDecrypt(aesEncryptedToken, aesEncryptionKey)
 	if err != nil {
-		return "", errors.Wrap(err, "error AES decrypting the token")
+		return "", err
 	}
 	return signedToken, nil
 }

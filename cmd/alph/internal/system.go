@@ -15,7 +15,7 @@ import (
 func System(_ctx context.Context) (system.System, error) {
 	builder, err := di.NewBuilder()
 	if err != nil {
-		return system.System{}, errors.Wrap(err, "error building components")
+		return system.System{}, errors.WithStack(err)
 	}
 	builder.Add(
 		di.Def{

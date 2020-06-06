@@ -40,7 +40,7 @@ func (v Validator) Validate(payload interface{}) (Result, error) {
 		}
 		return Result{Errors: errors}, nil
 	default:
-		return Result{}, errors.Wrap(err, "validating payload")
+		return Result{}, errors.WithStack(err)
 	}
 }
 

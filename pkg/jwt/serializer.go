@@ -42,7 +42,7 @@ func serializeHeader() (string, error) {
 		TokenType:          "JWT",
 	})
 	if err != nil {
-		return "", errors.Wrap(err, "serializing token header")
+		return "", errors.WithStack(err)
 	}
 	encodedHeader := base64.RawURLEncoding.EncodeToString(headerJSON)
 	return encodedHeader, nil
@@ -51,12 +51,12 @@ func serializeHeader() (string, error) {
 func deserializeHeader(serializedHeader string) (Header, error) {
 	headerJSON, err := base64.RawURLEncoding.DecodeString(serializedHeader)
 	if err != nil {
-		return Header{}, errors.Wrap(err, "decoding token header")
+		return Header{}, errors.WithStack(err)
 	}
 	var header Header
 	err = json.Unmarshal(headerJSON, &header)
 	if err != nil {
-		return Header{}, errors.Wrap(err, "deserializing token header")
+		return Header{}, errors.WithStack(err)
 	}
 	return header, nil
 }
@@ -64,7 +64,7 @@ func deserializeHeader(serializedHeader string) (Header, error) {
 func serializeToken(payload Token) (string, error) {
 	payloadJSON, err := json.Marshal(payload)
 	if err != nil {
-		return "", errors.Wrap(err, "serializing token payload")
+		return "", errors.WithStack(err)
 	}
 	encodedPayload := base64.RawURLEncoding.EncodeToString(payloadJSON)
 	return encodedPayload, nil
@@ -73,12 +73,12 @@ func serializeToken(payload Token) (string, error) {
 func deserializeToken(serializedToken string) (Token, error) {
 	payloadJSON, err := base64.RawURLEncoding.DecodeString(serializedToken)
 	if err != nil {
-		return Token{}, errors.Wrap(err, "decoding token payload")
+		return Token{}, errors.WithStack(err)
 	}
 	var payload Token
 	err = json.Unmarshal(payloadJSON, &payload)
 	if err != nil {
-		return Token{}, errors.Wrap(err, "deserializing token payload")
+		return Token{}, errors.WithStack(err)
 	}
 	return payload, nil
 }

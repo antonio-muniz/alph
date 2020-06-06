@@ -38,7 +38,7 @@ func generateSignature(encodedToken string, signingKey string) (string, error) {
 	hashFunction := hmac.New(sha256.New, []byte(signingKey))
 	_, err := hashFunction.Write([]byte(encodedToken))
 	if err != nil {
-		return "", errors.Wrap(err, "failed to generate HMAC-SHA256 signature")
+		return "", errors.WithStack(err)
 	}
 	signature := hashFunction.Sum(nil)
 	encodedSignature := base64.RawURLEncoding.EncodeToString(signature)

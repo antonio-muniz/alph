@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	ErrIncorrectCredentials = errors.New("Incorrect credentials")
+	ErrIncorrectCredentials = errors.New("incorrect credentials")
 )
 
 func PasswordAuth(ctx context.Context, sys system.System, request message.PasswordAuthRequest) (message.PasswordAuthResponse, error) {
@@ -26,11 +26,11 @@ func PasswordAuth(ctx context.Context, sys system.System, request message.Passwo
 	case storage.ErrUserNotFound:
 		return message.PasswordAuthResponse{}, ErrIncorrectCredentials
 	default:
-		return message.PasswordAuthResponse{}, errors.Wrap(err, "loading user")
+		return message.PasswordAuthResponse{}, err
 	}
 	passwordCorrect, err := password.Validate(request.Password, user.HashedPassword)
 	if err != nil {
-		return message.PasswordAuthResponse{}, errors.Wrap(err, "validating password")
+		return message.PasswordAuthResponse{}, err
 	}
 	if !passwordCorrect {
 		return message.PasswordAuthResponse{}, ErrIncorrectCredentials
@@ -41,12 +41,12 @@ func PasswordAuth(ctx context.Context, sys system.System, request message.Passwo
 	case storage.ErrClientNotFound:
 		return message.PasswordAuthResponse{}, ErrIncorrectCredentials
 	default:
-		return message.PasswordAuthResponse{}, errors.Wrap(err, "ensuring client exists")
+		return message.PasswordAuthResponse{}, err
 	}
 
 	accessToken, err := generateAccessToken(ctx, sys, request.Username)
 	if err != nil {
-		return message.PasswordAuthResponse{}, errors.Wrap(err, "generating access token")
+		return message.PasswordAuthResponse{}, err
 	}
 
 	authResponse := message.PasswordAuthResponse{AccessToken: accessToken}
