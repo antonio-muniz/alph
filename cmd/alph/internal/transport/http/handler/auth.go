@@ -6,7 +6,7 @@ import (
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/controller"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/message"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/respond"
+	"github.com/antonio-muniz/alph/pkg/respond"
 	"github.com/antonio-muniz/alph/pkg/system"
 	"github.com/antonio-muniz/alph/pkg/validator"
 )

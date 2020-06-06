@@ -7,7 +7,7 @@ import (
 
 	"github.com/antonio-muniz/alph/pkg/validator"
 
-	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/respond"
+	"github.com/antonio-muniz/alph/pkg/respond"
 	"github.com/antonio-muniz/alph/test/helpers"
 	"github.com/stretchr/testify/require"
 )

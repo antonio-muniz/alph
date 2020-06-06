@@ -9,7 +9,7 @@ import (
 	"github.com/antonio-muniz/alph/pkg/validator"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/message"
-	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/respond"
+	"github.com/antonio-muniz/alph/pkg/respond"
 )
 
 type createUserHandler struct {
