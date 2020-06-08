@@ -16,9 +16,16 @@ func BuildHttpRequest(
 	uri string,
 	body interface{},
 ) *http.Request {
-	serializedBody, err := json.Marshal(body)
-	require.NoError(t, err)
-	bodyReader := bytes.NewReader(serializedBody)
+	var bodyBytes []byte
+	switch typedBody := body.(type) {
+	case []byte:
+		bodyBytes = typedBody
+	default:
+		serializedBody, err := json.Marshal(body)
+		require.NoError(t, err)
+		bodyBytes = serializedBody
+	}
+	bodyReader := bytes.NewReader(bodyBytes)
 	request, err := http.NewRequest(method, uri, bodyReader)
 	require.NoError(t, err)
 	request.Header.Set("Content-Type", "application/json")
