@@ -3,8 +3,9 @@ package http
 import (
 	"net/http"
 
-	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/handler"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/middleware"
+
+	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/handler"
 	"github.com/antonio-muniz/alph/pkg/system"
 	"github.com/gorilla/mux"
 )
