@@ -2,8 +2,10 @@ package internal
 
 import (
 	"context"
+	"os"
 
 	"github.com/antonio-muniz/alph/pkg/clock"
+	"github.com/antonio-muniz/alph/pkg/logger"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/config"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/storage/memory"
@@ -34,6 +36,12 @@ func System(_ctx context.Context) (system.System, error) {
 			Name: "clock",
 			Build: func(container di.Container) (interface{}, error) {
 				return clock.NewWorkingClock(), nil
+			},
+		},
+		di.Def{
+			Name: "logger",
+			Build: func(container di.Container) (interface{}, error) {
+				return logger.NewLogger(os.Stdout), nil
 			},
 		},
 	)

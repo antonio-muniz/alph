@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/middleware"
+	"github.com/antonio-muniz/alph/pkg/middleware"
 	fixtures "github.com/antonio-muniz/alph/test/fixtures/http"
 	"github.com/stretchr/testify/require"
 )

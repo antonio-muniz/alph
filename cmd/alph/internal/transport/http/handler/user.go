@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/middleware"
+	"github.com/antonio-muniz/alph/pkg/middleware"
 
 	"github.com/antonio-muniz/alph/cmd/alph/internal/controller"
 	"github.com/antonio-muniz/alph/pkg/system"

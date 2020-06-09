@@ -7,6 +7,7 @@ import (
 	"github.com/antonio-muniz/alph/cmd/alph/internal/config"
 	"github.com/antonio-muniz/alph/cmd/alph/internal/storage/memory"
 	"github.com/antonio-muniz/alph/pkg/clock"
+	"github.com/antonio-muniz/alph/pkg/logger"
 	"github.com/antonio-muniz/alph/pkg/system"
 	"github.com/antonio-muniz/alph/test/helpers"
 	"github.com/sarulabs/di"
@@ -33,6 +34,12 @@ func InitializeSystem(t *testing.T, ctx context.Context) system.System {
 			Name: "clock",
 			Build: func(container di.Container) (interface{}, error) {
 				return clock.NewFrozenClock(helpers.Now()), nil
+			},
+		},
+		di.Def{
+			Name: "logger",
+			Build: func(container di.Container) (interface{}, error) {
+				return logger.NewNopLogger(), nil
 			},
 		},
 	)

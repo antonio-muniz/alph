@@ -10,7 +10,7 @@ import (
 	"github.com/antonio-muniz/alph/test/helpers"
 	"github.com/stretchr/testify/require"
 
-	"github.com/antonio-muniz/alph/cmd/alph/internal/transport/http/middleware"
+	"github.com/antonio-muniz/alph/pkg/middleware"
 )
 
 func TestMessageParser(t *testing.T) {
